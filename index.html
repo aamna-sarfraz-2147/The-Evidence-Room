@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Evidence Room — Cyber-Forensics Workstation</title>
+  <meta name="description" content="AEGIS-OS // Cold-Storage Bureau Forensic Archive. Case #8809: Dr. Viktor Volkov." />
+
+  <!-- Google Fonts: Plus Jakarta Sans, Inter, JetBrains Mono, Caveat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet CSS for Chapters Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <!-- Application Stylesheets -->
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/os.css" />
+</head>
+<body>
+  <!-- Ambient Phosphor Scanline Texture -->
+  <div class="crt-overlay" aria-hidden="true"></div>
+
+  <!-- Ice-Blue Biometric Laser Scanner Sweep -->
+  <div id="laser-sweep" class="laser-sweep" aria-hidden="true"></div>
+
+  <!-- Master App Screen Router Container -->
+  <div id="app">
+
+    <!-- ========================================================
+         SCREEN 1: TITLE SCREEN (OBSIDIAN DESK + SUSPENDED BADGE)
+         ======================================================== -->
+    <section id="screen-title" class="screen screen--active" aria-label="Title Screen">
+      <div class="title-desk">
+
+        <!-- Suspended Forensic Investigator ID Badge -->
+        <div class="investigator-badge-wrap">
+          <div class="badge-lanyard-strap"></div>
+          <div class="badge-metal-clip"></div>
+          <div class="badge-card">
+            <div class="badge-photo-frame">
+              <svg viewBox="0 0 60 75" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="60" height="75" fill="#090D12"/>
+                <circle cx="30" cy="26" r="14" fill="#30363D"/>
+                <path d="M10 68C10 48 18 42 30 42C42 42 50 48 50 68H10Z" fill="#21262D"/>
+                <path d="M22 68L30 52L38 68" fill="#161B22"/>
+              </svg>
+            </div>
+            <div class="badge-details">
+              <div class="badge-agency">FEDERAL FORENSIC ARCHIVE</div>
+              <div class="badge-name">DARIA VOLKOV</div>
+              <div class="badge-title">SENIOR CYBER-FORENSICS</div>
+              <div class="badge-id">ID: #8809-DV // LEVEL 4</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Central Frosted Dossier Card -->
+        <article class="title-dossier-card">
+          <div class="dossier-tag">BUREAU FORENSIC ARCHIVE // NODE_09 // UNAUTHORIZED SESSION</div>
+          <h1 class="dossier-heading">The Evidence Room</h1>
+          <p class="dossier-subtitle">Case #8809 was stamped "Closed — Lack of Evidence." The victim was her husband.</p>
+
+          <!-- Tilted Crimson [ CLOSED ] Stamp -->
+          <div class="stamp-closed" id="closed-stamp">[ CLOSED ]</div>
+
+          <div class="dossier-actions">
+            <button type="button" class="btn-investigate" id="btn-investigate">
+              <span id="investigate-label">[ INVESTIGATE ]</span>
+              <span class="btn-subtag" id="investigate-subtag" style="display:none;"></span>
+            </button>
+
+            <div class="btn-restart-container">
+              <button type="button" class="btn-restart disabled" id="btn-restart">[ RESTART ]</button>
+              <div class="restart-confirm-box" id="restart-confirm-box">
+                <span class="restart-confirm-text">PURGE ARCHIVE DATA?</span>
+                <button type="button" class="btn-confirm-purge" id="btn-confirm-purge">[ CONFIRM ]</button>
+                <button type="button" class="btn-cancel-purge" id="btn-cancel-purge">[ CANCEL ]</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         SCREEN 2: CHAPTERS SCREEN (LEAFLET MAP + JURISDICTIONS)
+         ======================================================== -->
+    <section id="screen-chapters" class="screen" aria-label="Case Jurisdictions">
+      <header class="chapters-topbar">
+        <div class="chapters-topbar__left">
+          <i data-lucide="shield-alert" style="width:16px; height:16px;"></i>
+          <span>INVESTIGATOR: D. VOLKOV</span>
+        </div>
+        <div class="chapters-topbar__center">SELECT CASE JURISDICTION</div>
+        <div class="chapters-topbar__right">
+          <button type="button" class="btn-back-title" id="btn-back-title">[ ← TITLE ]</button>
+        </div>
+      </header>
+
+      <div class="chapters-map-viewport">
+        <!-- Interactive CartoDB Leaflet Map -->
+        <div id="leaflet-map"></div>
+
+        <!-- Floating Chapter Cards Tray -->
+        <div class="chapters-floating-tray">
+          <!-- Chapter 01 (Unlocked) -->
+          <div class="chapter-card unlocked" id="card-chapter-1">
+            <div class="chapter-card-header">
+              <span class="chapter-num">CHAPTER 01</span>
+              <span class="chapter-coords">55.0084° N, 82.9357° E</span>
+            </div>
+            <div class="chapter-title">NOVOSIBIRSK // MOSCOW</div>
+            <div class="chapter-victim">Case #8809: Dr. Viktor Volkov</div>
+            <div class="chapter-desc">Chief Biochemical Engineer found dead at his workstation inside a sealed Level-4 facility. Case closed under Order 44-B.</div>
+            <button type="button" class="btn-enter-archive" id="btn-enter-ch1">
+              <i data-lucide="folder-open" style="width:14px; height:14px;"></i>
+              <span>[ ENTER ARCHIVE ]</span>
+            </button>
+          </div>
+
+          <!-- Chapter 02 (Locked) -->
+          <div class="chapter-card locked">
+            <div class="chapter-card-header">
+              <span class="chapter-num">CHAPTER 02</span>
+              <span class="chapter-coords">69.3558° N, 88.1893° E</span>
+            </div>
+            <div class="chapter-title">[ LOCATION REDACTED ]</div>
+            <div class="chapter-victim">Case #8814: ████████████</div>
+            <div class="chapter-desc">Norilsk Subzero Storage Vault. Secure transmission severed by military provost marshal.</div>
+            <div class="chapter-locked-badge">ORDER 44-B // SEALED</div>
+          </div>
+
+          <!-- Chapter 03 (Locked) -->
+          <div class="chapter-card locked">
+            <div class="chapter-card-header">
+              <span class="chapter-num">CHAPTER 03</span>
+              <span class="chapter-coords">43.6028° N, 39.7342° E</span>
+            </div>
+            <div class="chapter-title">[ LOCATION REDACTED ]</div>
+            <div class="chapter-victim">Case #8821: ████████████</div>
+            <div class="chapter-desc">Black Sea Submersible Terminal. Encrypted courier channel awaiting diplomatic clearance.</div>
+            <div class="chapter-locked-badge">ORDER 44-B // SEALED</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3-Line Terminal Handshake Modal -->
+      <div class="handshake-modal" id="handshake-modal">
+        <div class="handshake-terminal">
+          <div class="handshake-line" id="hs-line-1">&gt; ESTABLISHING LINK: MOSCOW_ARCHIVE_NODE_04 <span class="handshake-ok">[OK]</span></div>
+          <div class="handshake-line" id="hs-line-2">&gt; DECRYPTING SECTOR: NOVOSIBIRSK_VITYAZ_LAB <span class="handshake-bypassed">[BYPASSED]</span></div>
+          <div class="handshake-line" id="hs-line-3">&gt; MOUNTING CASE #8809... <span class="handshake-mount">[READY]</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         SCREEN 3: DESKTOP OS ("THE EVIDENCE ROOM" // AEGIS-OS)
+         ======================================================== -->
+    <section id="screen-desktop" class="screen" aria-label="Desktop OS">
+      <!-- Top Status Bar -->
+      <header class="desktop-topbar">
+        <div class="topbar-left">
+          <div class="os-logo-pill">
+            <span class="os-pulse-dot"></span>
+            <span>AEGIS-OS</span>
+          </div>
+          <div class="topbar-divider"></div>
+          <div class="topbar-investigator">DARIA VOLKOV // FIELD FORENSICS</div>
+          <div class="topbar-stage-tag" id="topbar-stage-pill">STAGE 1</div>
+        </div>
+
+        <div class="topbar-center">
+          <div class="objective-lead-pill">
+            <span class="objective-prefix">LEAD:</span>
+            <span id="objective-text">Examine initial case files & repair corrupted terminal disk sectors.</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="topbar-clock">
+            <i data-lucide="clock" style="width:13px; height:13px;"></i>
+            <span id="live-msk-clock">00:00:00 MSK</span>
+          </div>
+          <button type="button" class="btn-notes-toggle" id="btn-notes-toggle">
+            <i data-lucide="book-open" style="width:13px; height:13px;"></i>
+            <span>NOTES</span>
+            <span class="notes-badge" id="notes-count-badge">2</span>
+          </button>
+          <button type="button" class="btn-exit-os" id="btn-exit-os">[ EXIT TO TITLE ]</button>
+        </div>
+      </header>
+
+      <!-- Desktop Workspace Canvas -->
+      <main class="desktop-canvas">
+
+        <!-- Quick Notes Drawer (Slide-out) -->
+        <aside class="notes-drawer" id="notes-drawer">
+          <div class="notes-drawer-header">
+            <span class="notes-drawer-title">DARIA'S QUICK NOTES // INTEL LOG</span>
+            <button type="button" class="traffic-dot dot-close" id="btn-close-notes" title="Close drawer"></button>
+          </div>
+          <div class="notes-drawer-body" id="notes-list"></div>
+        </aside>
+
+        <!-- ====================================================
+             WINDOW 1: CASE DOSSIER (PAPER-ON-GLASS DOCUMENTS)
+             ==================================================== -->
+        <div class="os-window" id="win-dossier" style="width:840px; height:580px; top:60px; left:60px;">
+          <div class="window-header">
+            <div class="window-controls">
+              <span class="traffic-dot dot-close"></span>
+              <span class="traffic-dot dot-minimize"></span>
+              <span class="traffic-dot dot-expand"></span>
+            </div>
+            <div class="window-title">
+              <i data-lucide="folder-archive" style="width:14px; height:14px;"></i>
+              <span>CASE_DOSSIER // EVIDENCE REPOSITORY</span>
+            </div>
+            <div style="width:36px;"></div>
+          </div>
+          <div class="window-body">
+            <div class="dossier-layout">
+              <div class="dossier-file-index" id="dossier-file-index"></div>
+              <div class="dossier-viewer-container" id="dossier-viewer"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====================================================
+             WINDOW 2: PERSONS OF INTEREST (SUSPECT PROFILES)
+             ==================================================== -->
+        <div class="os-window" id="win-poi" style="width:860px; height:540px; top:80px; left:120px;">
+          <div class="window-header">
+            <div class="window-controls">
+              <span class="traffic-dot dot-close"></span>
+              <span class="traffic-dot dot-minimize"></span>
+              <span class="traffic-dot dot-expand"></span>
+            </div>
+            <div class="window-title">
+              <i data-lucide="users" style="width:14px; height:14px;"></i>
+              <span>PERSONS_OF_INTEREST // SUSPECT DOSSIERS</span>
+            </div>
+            <div style="width:36px;"></div>
+          </div>
+          <div class="window-body">
+            <div class="poi-container" id="poi-card-grid"></div>
+          </div>
+        </div>
+
+        <!-- ====================================================
+             WINDOW 3: FORENSIC LAB (HEX, CCTV & BIOMETRICS, WIRETAP)
+             ==================================================== -->
+        <div class="os-window" id="win-lab" style="width:880px; height:620px; top:50px; left:180px;">
+          <div class="window-header">
+            <div class="window-controls">
+              <span class="traffic-dot dot-close"></span>
+              <span class="traffic-dot dot-minimize"></span>
+              <span class="traffic-dot dot-expand"></span>
+            </div>
+            <div class="window-title">
+              <i data-lucide="microscope" style="width:14px; height:14px;"></i>
+              <span>FORENSIC_LAB // MULTIMEDIA ANALYSIS WORKSPACE</span>
+            </div>
+            <div style="width:36px;"></div>
+          </div>
+          <div class="window-body">
+            <div class="lab-tabbar">
+              <button type="button" class="lab-tab-btn active" id="tab-btn-sector">
+                <i data-lucide="binary" style="width:14px; height:14px;"></i>
+                <span>Tab 1: Sector Repair</span>
+              </button>
+              <button type="button" class="lab-tab-btn locked" id="tab-btn-cctv">
+                <i data-lucide="video" style="width:14px; height:14px;"></i>
+                <span>Tab 2: CCTV & Biometrics</span>
+              </button>
+              <button type="button" class="lab-tab-btn" id="tab-btn-wiretap">
+                <i data-lucide="radio" style="width:14px; height:14px;"></i>
+                <span>Tab 3: Wiretap & Cipher</span>
+              </button>
+            </div>
+
+            <!-- Tab 1: Hex Sector Repair -->
+            <div class="lab-tab-content active" id="tab-pane-sector">
+              <div class="hex-editor-wrapper">
+                <div class="hex-hint-box">
+                  <strong>DISPATCH HINT:</strong> Officer Kuznetsova recorded an emergency 5-byte NVTA recovery offset in her First-Responder Notes. Cycle corrupted cells to reconstruct the partition.
+                </div>
+                <div class="hex-grid-container" id="hex-grid"></div>
+                <div class="hex-status-bar" id="hex-status">Awaiting sector calibration...</div>
+              </div>
+            </div>
+
+            <!-- Tab 2: CCTV Video Scrubber & Chart.js Biometrics -->
+            <div class="lab-tab-content" id="tab-pane-cctv">
+              <div class="cctv-player-container">
+                <div class="cctv-viewport-wrapper">
+                  <canvas id="cctv-canvas"></canvas>
+                  <div class="cctv-event-banner" id="cctv-event-banner">EVENT DETECTED</div>
+                </div>
+                <div class="cctv-controls-bar">
+                  <button type="button" class="btn-cctv-play" id="btn-cctv-play">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                      <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                  </button>
+                  <input type="range" class="cctv-time-slider" id="cctv-time-slider" min="0" max="2700" value="0" />
+                  <div class="cctv-timecode" id="cctv-timecode">01:55:00 MSK</div>
+                </div>
+              </div>
+
+              <!-- Viktor's Biometrics / Potassium Spike Chart -->
+              <div class="biometrics-wrapper">
+                <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-ice); margin-bottom:8px;">
+                  VIKTOR VOLKOV // TELEMETRY & TOXICOLOGY LOG (01:50 TO 02:25 MSK)
+                </div>
+                <div class="biometrics-chart-container">
+                  <canvas id="toxicology-chart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 3: Voiced Wiretap & Caesar Cipher -->
+            <div class="lab-tab-content" id="tab-pane-wiretap">
+              <div class="wiretap-container">
+                <div class="wiretap-audio-box">
+                  <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-ice); display:flex; justify-content:space-between;">
+                    <span>VOICED WIRETAP // B-WING INTERCEPT</span>
+                    <span>SYNTHETIC RADIO STATIC FILTER</span>
+                  </div>
+                  <canvas class="wiretap-waveform-canvas" id="wiretap-waveform"></canvas>
+                  <div class="wiretap-controls">
+                    <button type="button" class="btn-wiretap-play" id="btn-wiretap-play">
+                      ▶ PLAY INTERCEPTED WIRETAP
+                    </button>
+                  </div>
+                  <div class="wiretap-transcript-box" id="wiretap-transcript-box"></div>
+                </div>
+
+                <div class="cipher-decryptor-box">
+                  <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-amber); margin-bottom:8px;">
+                    CAESAR SHIFT (+7) CIPHER DECRYPTION CONSOLE
+                  </div>
+                  <div class="cipher-raw-display" id="cipher-raw">ZLYBT V-7 KLYPCHAPCL — AOLYTVZ</div>
+                  <div class="cipher-slider-row">
+                    <input type="range" class="cipher-slider" id="cipher-shift-slider" min="0" max="25" value="0" />
+                    <span class="cipher-shift-display" id="cipher-shift-val">Shift: 0</span>
+                  </div>
+                  <div class="cipher-decoded-preview" id="cipher-preview">ZLYBT V-7 KLYPCHAPCL — AOLYTVZ</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====================================================
+             WINDOW 4: EVIDENCE BOARD (RED STRING CORKBOARD)
+             ==================================================== -->
+        <div class="os-window" id="win-board" style="width:840px; height:580px; top:70px; left:220px;">
+          <div class="window-header">
+            <div class="window-controls">
+              <span class="traffic-dot dot-close"></span>
+              <span class="traffic-dot dot-minimize"></span>
+              <span class="traffic-dot dot-expand"></span>
+            </div>
+            <div class="window-title">
+              <i data-lucide="git-pull-request" style="width:14px; height:14px;"></i>
+              <span>EVIDENCE_BOARD // ALIBI CORRELATION PINBOARD</span>
+            </div>
+            <div style="width:36px;"></div>
+          </div>
+          <div class="window-body">
+            <div class="board-container">
+              <canvas id="evidence-string-canvas"></canvas>
+              <div class="board-columns-grid">
+                <div>
+                  <div class="board-col-title">OFFICIAL SUSPECT ALIBIS (CLICK TO SELECT)</div>
+                  <div class="board-card-stack" id="board-alibi-stack"></div>
+                </div>
+                <div>
+                  <div class="board-col-title">FORENSIC CONTRADICTIONS (CLICK TO CORRELATE)</div>
+                  <div class="board-card-stack" id="board-contra-stack"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====================================================
+             WINDOW 5: DEADHAND TERMINAL & FINAL INDICTMENT
+             ==================================================== -->
+        <div class="os-window" id="win-terminal" style="width:820px; height:580px; top:90px; left:280px;">
+          <div class="window-header">
+            <div class="window-controls">
+              <span class="traffic-dot dot-close"></span>
+              <span class="traffic-dot dot-minimize"></span>
+              <span class="traffic-dot dot-expand"></span>
+            </div>
+            <div class="window-title">
+              <i data-lucide="terminal" style="width:14px; height:14px;"></i>
+              <span>DEADHAND_TERMINAL // INDICTMENT SUBMISSION</span>
+            </div>
+            <div style="width:36px;"></div>
+          </div>
+          <div class="window-body">
+            <div class="terminal-subtabs">
+              <button type="button" class="term-subtab-btn active" id="term-tab-btn-cli">Terminal Shell</button>
+              <button type="button" class="term-subtab-btn" id="term-tab-btn-serum">Serum V-7 Sequencer</button>
+              <button type="button" class="term-subtab-btn" id="term-tab-btn-indict">Final Indictment</button>
+            </div>
+
+            <!-- Subtab 1: CLI Shell -->
+            <div class="term-tab-pane active" id="term-pane-cli">
+              <div class="terminal-shell-box">
+                <div class="terminal-scroll-area" id="term-log-area"></div>
+                <div class="terminal-input-bar">
+                  <span class="terminal-prompt">&gt;</span>
+                  <input type="text" class="terminal-cmd-input" id="term-cmd-input" autocomplete="off" spellcheck="false" placeholder="Type 'help' or command..." />
+                </div>
+              </div>
+            </div>
+
+            <!-- Subtab 2: Serum V-7 Molecular Sequencer -->
+            <div class="term-tab-pane" id="term-pane-serum">
+              <div class="serum-sequencer-box">
+                <p style="font-size:12.5px; color:var(--text-secondary); margin-bottom:1rem;">
+                  Assemble the 5-peptide synthetic chain Viktor documented before cardiac arrest.
+                </p>
+                <div class="serum-slots-row" id="serum-slots"></div>
+                <div class="serum-pool-row" id="serum-pool"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <button type="button" class="btn-restart" id="btn-serum-reset">[ RESET CHAIN ]</button>
+                  <span id="serum-status" style="font-family:var(--font-mono); font-size:12px; color:var(--text-muted);">
+                    Select peptides from the candidate pool.
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Subtab 3: Final Indictment Form -->
+            <div class="term-tab-pane" id="term-pane-indict">
+              <div class="indictment-form-box">
+                <form id="indictment-form">
+                  <div class="indictment-grid">
+                    <div class="indict-field-row">
+                      <label class="indict-label" for="indict-culprit">Primary Culprit</label>
+                      <select class="indict-select" id="indict-culprit" required></select>
+                    </div>
+
+                    <div class="indict-field-row">
+                      <label class="indict-label" for="indict-weapon">Weapon / Murder Method</label>
+                      <select class="indict-select" id="indict-weapon" required></select>
+                    </div>
+
+                    <div class="indict-field-row">
+                      <label class="indict-label" for="indict-motive">Motive</label>
+                      <select class="indict-select" id="indict-motive" required></select>
+                    </div>
+
+                    <div class="indict-field-row">
+                      <label class="indict-label" for="indict-opportunity">Opportunity / Window</label>
+                      <select class="indict-select" id="indict-opportunity" required></select>
+                    </div>
+
+                    <div class="indict-field-row">
+                      <label class="indict-label">Co-Conspirators</label>
+                      <div class="coconspirator-checks-grid">
+                        <label class="check-label">
+                          <input type="checkbox" name="coconspirator" value="malekov" />
+                          <span>General Anatoly Malekov</span>
+                        </label>
+                        <label class="check-label">
+                          <input type="checkbox" name="coconspirator" value="lindqvist" />
+                          <span>Soren Lindqvist</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button type="submit" class="btn-submit-indictment">[ FILE FORMAL INDICTMENT ]</button>
+                  <div id="indict-status" style="margin-top:1rem; font-family:var(--font-mono); font-size:12px; text-align:center;"></div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====================================================
+             MACOS-STYLE BOTTOM DOCK
+             ==================================================== -->
+        <nav class="desktop-dock" aria-label="Application Dock">
+          <button type="button" class="dock-item" data-target-window="win-dossier" aria-label="Case Dossier">
+            <i data-lucide="folder-lock" style="width:24px; height:24px;"></i>
+            <span class="dock-active-dot"></span>
+            <span class="dock-tooltip">Case Dossier</span>
+          </button>
+
+          <button type="button" class="dock-item" data-target-window="win-poi" aria-label="Persons of Interest">
+            <i data-lucide="users" style="width:24px; height:24px;"></i>
+            <span class="dock-active-dot"></span>
+            <span class="dock-tooltip">Persons of Interest</span>
+          </button>
+
+          <button type="button" class="dock-item" data-target-window="win-lab" aria-label="Forensic Lab">
+            <i data-lucide="microscope" style="width:24px; height:24px;"></i>
+            <span class="dock-active-dot"></span>
+            <span class="dock-tooltip">Forensic Lab</span>
+          </button>
+
+          <button type="button" class="dock-item" data-target-window="win-board" aria-label="Evidence Board">
+            <i data-lucide="git-pull-request" style="width:24px; height:24px;"></i>
+            <span class="dock-active-dot"></span>
+            <span class="dock-tooltip">Evidence Board</span>
+          </button>
+
+          <button type="button" class="dock-item" data-target-window="win-terminal" aria-label="Deadhand Terminal">
+            <i data-lucide="terminal" style="width:24px; height:24px;"></i>
+            <span class="dock-active-dot"></span>
+            <span class="dock-tooltip">Deadhand Terminal</span>
+          </button>
+        </nav>
+      </main>
+    </section>
+
+    <!-- ========================================================
+         ENDING RESOLUTION MODAL (DECLASSIFIED INDICTMENT)
+         ======================================================== -->
+    <div class="ending-resolution-overlay" id="ending-overlay">
+      <div class="ending-modal-card">
+        <div class="ending-stamp">[ INDICTED ]</div>
+        <div class="dossier-tag">FEDERAL FORENSIC ARCHIVES // SPECIAL VERDICT // CASE #8809</div>
+        <h2 class="ending-title">CASE REOPENED: JUSTICE FOR VIKTOR VOLKOV</h2>
+        <div class="ending-prose">
+          <p style="margin-bottom:1rem;">
+            The evidence is undeniable. At 02:04 MSK on 14 October 2026, <strong>Dr. Nikolai Vane</strong> exploited his access to swap Viktor Volkov's personal steel thermos with a lethal formulation of <em>Serum V-7 Derivative</em>. While Viktor suffered fatal ventricular fibrillation, Vane hijacked the terminal remotely to sanitize audit logs.
+          </p>
+          <p style="margin-bottom:1rem;">
+            <strong>General Anatoly Malekov</strong> orchestrated the immediate invocation of Order 44-B and dispatched his personal aide to retrieve Viktor's biological research dossiers. International broker <strong>Soren Lindqvist</strong> was traced to a local safehouse coordinating the foreign auction of the weaponized culture.
+          </p>
+          <p>
+            Interpol Red Notices and federal arrest warrants have been issued. The sealed archive is permanently reopened. Daria Volkov stands in the quiet hum of the forensic workstation, knowing her husband's voice was finally heard.
+          </p>
+        </div>
+        <button type="button" class="btn-investigate" id="btn-close-ending">[ DISMISS ARCHIVE RESOLUTION ]</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Leaflet JS CDN -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Application Logic -->
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/media.js"></script>
+  <script src="js/puzzles.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
