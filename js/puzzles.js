@@ -1,14 +1,14 @@
-/* ============================================================
-   THE EVIDENCE ROOM — Puzzle Controllers & Interactive Forensics
-   Sector Repair, Caesar Decryptor, Evidence Board Red Strings,
-   Deadhand Terminal CLI, Serum V-7 Sequencer, Final Indictment
-   ============================================================ */
+// Puzzle logic and forensic minigames:
+// 1. Hex sector repair
+// 2. Caesar shift decryptor
+// 3. Evidence board red string matching
+// 4. Deadhand terminal shell
+// 5. Serum V-7 peptide sequencer
+// 6. Final indictment submission
 
 const PuzzleEngine = (() => {
-  /* ============================================================
-     1. HEX EDITOR (SECTOR REPAIR PUZZLE)
-     Target signature: 54 48 41 14 42 (Hidden in Kuznetsova's notes)
-     ============================================================ */
+  // 1. Hex Editor: Rebuild corrupted disk sectors
+  // Clue found in Officer Kuznetsova's notes: target sequence is 54 48 41 14 42
   function initHexEditor() {
     const gridContainer = document.getElementById('hex-grid');
     const statusText = document.getElementById('hex-status');
@@ -18,7 +18,6 @@ const PuzzleEngine = (() => {
     const currentValues = HEX_PUZZLE.grid.slice();
     const solvedTargets = new Set();
 
-    // Check if already completed in state
     const isCompleted = GameState.get().puzzles.hexComplete;
 
     HEX_PUZZLE.grid.forEach((byte, index) => {
@@ -62,15 +61,6 @@ const PuzzleEngine = (() => {
               statusText.textContent = 'SECTOR HEADER REBUILT (54 48 41 14 42) // TERMINAL_LOGS.dat DECLASSIFIED';
               statusText.style.color = 'var(--accent-emerald)';
               GameState.completePuzzle('hexComplete');
-              
-              // Enable Lab Tab 2
-              const cctvTabBtn = document.getElementById('tab-btn-cctv');
-              if (cctvTabBtn) cctvTabBtn.classList.remove('locked');
-
-              // Refresh Dossier file list
-              if (window.App && window.App.renderDossierFileList) {
-                window.App.renderDossierFileList();
-              }
             } else {
               statusText.textContent = `Sector byte calibrated (${solvedTargets.size}/${HEX_PUZZLE.targets.length}).`;
               statusText.style.color = 'var(--accent-ice)';
@@ -93,10 +83,8 @@ const PuzzleEngine = (() => {
     }
   }
 
-  /* ============================================================
-     2. CAESAR SHIFT (+7) CIPHER DECRYPTOR
-     ZLYBT V-7 KLYPCHAPCL — AOLYTVZ -> SERUM V-7 DERIVATIVE — THERMOS
-     ============================================================ */
+  // 2. Caesar Shift Decryptor
+  // Shifts intercepted radio memo 7 letters backward to reveal: "SERUM V-7 DERIVATIVE — THERMOS"
   function initCipherDecryptor() {
     const rawBox = document.getElementById('cipher-raw');
     const slider = document.getElementById('cipher-shift-slider');
@@ -143,11 +131,9 @@ const PuzzleEngine = (() => {
     }
   }
 
-  /* ============================================================
-     3. EVIDENCE BOARD (RED STRING CORKBOARD CANVAS)
-     Connects Alibis to Contradicting Evidence Cards
-     ============================================================ */
-  const boardConnections = []; // Array of { alibiId, contraId }
+  // 3. Evidence Board: Match suspect alibis with forensic contradictions
+  // Draws red string connections between pin nodes using an HTML5 canvas overlay
+  const boardConnections = [];
   let selectedAlibiCard = null;
 
   function initEvidenceBoard() {
@@ -172,7 +158,7 @@ const PuzzleEngine = (() => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Populate Alibis
+    // Render suspect alibi cards on the left
     alibiCol.innerHTML = EVIDENCE_BOARD_DATA.alibis
       .map(
         (a) => `
@@ -185,7 +171,7 @@ const PuzzleEngine = (() => {
       )
       .join('');
 
-    // Populate Contradictions
+    // Render contradicting evidence cards on the right
     contraCol.innerHTML = EVIDENCE_BOARD_DATA.contradictions
       .map(
         (c) => `
@@ -198,17 +184,19 @@ const PuzzleEngine = (() => {
       )
       .join('');
 
-    // Restore saved board state if completed
+    // Restore connections if previously solved
     if (GameState.get().puzzles.evidenceBoardComplete) {
       EVIDENCE_BOARD_DATA.contradictions.forEach((c) => {
-        boardConnections.push({ alibiId: c.matchesAlibi, contraId: c.id });
+        if (!boardConnections.some((x) => x.alibiId === c.matchesAlibi)) {
+          boardConnections.push({ alibiId: c.matchesAlibi, contraId: c.id });
+        }
         document.getElementById(c.matchesAlibi)?.classList.add('matched');
         document.getElementById(c.id)?.classList.add('matched');
       });
       setTimeout(drawStrings, 100);
     }
 
-    // Card Selection & Matching Logic
+    // Card click events for matching pins
     document.querySelectorAll('.board-pin-card.alibi').forEach((card) => {
       card.addEventListener('click', () => {
         if (card.classList.contains('matched')) return;
@@ -225,7 +213,6 @@ const PuzzleEngine = (() => {
 
         const targetAlibi = card.dataset.matches;
         if (selectedAlibiCard === targetAlibi) {
-          // Success: Match found!
           boardConnections.push({ alibiId: selectedAlibiCard, contraId: card.dataset.id });
 
           const alibiEl = document.getElementById(selectedAlibiCard);
@@ -240,12 +227,8 @@ const PuzzleEngine = (() => {
 
           if (boardConnections.length === EVIDENCE_BOARD_DATA.alibis.length) {
             GameState.completePuzzle('evidenceBoardComplete');
-            if (window.App && window.App.renderPersonsOfInterest) {
-              window.App.renderPersonsOfInterest();
-            }
           }
         } else {
-          // Mismatch
           card.style.borderColor = 'var(--accent-crimson)';
           setTimeout(() => {
             card.style.borderColor = '';
@@ -279,7 +262,7 @@ const PuzzleEngine = (() => {
         const x2 = rectB.left + rectB.width / 2 - containerRect.left;
         const y2 = rectB.top + rectB.height / 2 - containerRect.top;
 
-        // Draw taut red thread with slight forensic sag
+        // Draw taut red thread with realistic catenary sag
         ctx.strokeStyle = '#F85149';
         ctx.lineWidth = 2.5;
         ctx.shadowColor = 'rgba(248, 81, 73, 0.5)';
@@ -288,7 +271,7 @@ const PuzzleEngine = (() => {
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         const midX = (x1 + x2) / 2;
-        const midY = (y1 + y2) / 2 + 18; // thread sag
+        const midY = (y1 + y2) / 2 + 18;
         ctx.quadraticCurveTo(midX, midY, x2, y2);
         ctx.stroke();
 
@@ -297,10 +280,8 @@ const PuzzleEngine = (() => {
     }
   }
 
-  /* ============================================================
-     4. DEADHAND TERMINAL CLI (V_VOLKOV_DEADHAND)
-     Commands: help, ls, cat, decrypt KW-NEVA-8809, mount, clear, status
-     ============================================================ */
+  // 4. Deadhand Terminal CLI
+  // Supports interactive commands: help, ls, cat, decrypt KW-NEVA-8809, mount, status, whoami, clear
   function initTerminalCLI() {
     const scrollArea = document.getElementById('term-log-area');
     const input = document.getElementById('term-cmd-input');
@@ -317,7 +298,6 @@ const PuzzleEngine = (() => {
       scrollArea.scrollTop = scrollArea.scrollHeight;
     }
 
-    // Initial greeting
     printLine('AEGIS-OS SECURE TERMINAL // MOUNT POINT: /mnt/cold_archive', 'ice');
     printLine('Type <span style="color:#58A6FF;">help</span> for authorized commands.', 'dim');
 
@@ -426,10 +406,8 @@ const PuzzleEngine = (() => {
     }
   }
 
-  /* ============================================================
-     5. SERUM V-7 MOLECULAR SEQUENCER
-     Correct Chain: V7-CORE -> NEVA-α -> MYO-KILL -> CLOAK-4H -> TRACE-NULL
-     ============================================================ */
+  // 5. Serum V-7 Molecular Sequencer
+  // Target sequence from Viktor's deadhand log: V7-CORE -> NEVA-α -> MYO-KILL -> CLOAK-4H -> TRACE-NULL
   function initSerumSequencer() {
     const slotsContainer = document.getElementById('serum-slots');
     const poolContainer = document.getElementById('serum-pool');
@@ -539,9 +517,8 @@ const PuzzleEngine = (() => {
     renderPool();
   }
 
-  /* ============================================================
-     6. FINAL INDICTMENT FORM & DECLASFICATION RESOLUTION
-     ============================================================ */
+  // 6. Final Case Indictment Form
+  // Submits charges to reopen Case #8809 against Dr. Nikolai Vane and his co-conspirators
   function initIndictmentForm() {
     const form = document.getElementById('indictment-form');
     const culpritSelect = document.getElementById('indict-culprit');
@@ -552,7 +529,6 @@ const PuzzleEngine = (() => {
     const resolutionOverlay = document.getElementById('ending-overlay');
     if (!form || !culpritSelect) return;
 
-    // Populate Select Options
     culpritSelect.innerHTML = `<option value="">-- SELECT PRIMARY CULPRIT --</option>` +
       INDICTMENT_CONFIG.culprits.map((c) => `<option value="${c.value}">${c.label}</option>`).join('');
 
@@ -593,7 +569,6 @@ const PuzzleEngine = (() => {
         statusText.style.color = 'var(--accent-emerald)';
         GameState.completePuzzle('indictmentSubmitted');
 
-        // Reveal Resolution Modal
         setTimeout(() => {
           if (resolutionOverlay) resolutionOverlay.classList.add('active');
         }, 600);

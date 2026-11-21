@@ -1,7 +1,6 @@
-/* ============================================================
-   THE EVIDENCE ROOM — Case Data & Dossier Files
-   Thriller-grade prose, zero placeholders, offline procedural assets
-   ============================================================ */
+// Case data, documents, suspect dossiers, and puzzle reference configurations.
+// Team note: Target hex bytes are 54 48 41 14 42 (found in Officer Kuznetsova's notes).
+// The wiretap cipher uses a Caesar shift of 7 steps backward to reveal the thermos clue.
 
 const CHAPTERS = [
   {

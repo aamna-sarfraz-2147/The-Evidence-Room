@@ -2,35 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>The Evidence Room — Cyber-Forensics Workstation</title>
-  <meta name="description" content="AEGIS-OS // Cold-Storage Bureau Forensic Archive. Case #8809: Dr. Viktor Volkov." />
+  <meta name="description" content="AEGIS-OS // Bureau Forensic Archive. Case #8809: Dr. Viktor Volkov." />
 
   <!-- Google Fonts: Plus Jakarta Sans, Inter, JetBrains Mono, Caveat -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
 
-  <!-- Leaflet CSS for Chapters Map -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <!-- Leaflet CSS for Chapter Jurisdiction Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <!-- Application Stylesheets -->
+  <!-- Project Stylesheets -->
   <link rel="stylesheet" href="css/theme.css" />
   <link rel="stylesheet" href="css/os.css" />
 </head>
 <body>
-  <!-- Ambient Phosphor Scanline Texture -->
+  <!-- CRT monitor scanline overlay -->
   <div class="crt-overlay" aria-hidden="true"></div>
 
-  <!-- Ice-Blue Biometric Laser Scanner Sweep -->
+  <!-- Biometric scanner light line animation -->
   <div id="laser-sweep" class="laser-sweep" aria-hidden="true"></div>
 
-  <!-- Master App Screen Router Container -->
+  <!-- Screen Router Container -->
   <div id="app">
 
-    <!-- ========================================================
-         SCREEN 1: TITLE SCREEN (OBSIDIAN DESK + SUSPENDED BADGE)
-         ======================================================== -->
+    <!-- Screen 1: Title Screen & Daria's Badge -->
     <section id="screen-title" class="screen screen--active" aria-label="Title Screen">
       <div class="title-desk">
 
@@ -56,7 +54,7 @@
           </div>
         </div>
 
-        <!-- Central Frosted Dossier Card -->
+        <!-- Central Dossier Card -->
         <article class="title-dossier-card">
           <div class="dossier-tag">BUREAU FORENSIC ARCHIVE // NODE_09 // UNAUTHORIZED SESSION</div>
           <h1 class="dossier-heading">The Evidence Room</h1>
@@ -84,9 +82,7 @@
       </div>
     </section>
 
-    <!-- ========================================================
-         SCREEN 2: CHAPTERS SCREEN (LEAFLET MAP + JURISDICTIONS)
-         ======================================================== -->
+    <!-- Screen 2: Jurisdiction Map & Chapter Select -->
     <section id="screen-chapters" class="screen" aria-label="Case Jurisdictions">
       <header class="chapters-topbar">
         <div class="chapters-topbar__left">
@@ -100,7 +96,7 @@
       </header>
 
       <div class="chapters-map-viewport">
-        <!-- Interactive CartoDB Leaflet Map -->
+        <!-- Interactive Leaflet Map Container -->
         <div id="leaflet-map"></div>
 
         <!-- Floating Chapter Cards Tray -->
@@ -120,7 +116,7 @@
             </button>
           </div>
 
-          <!-- Chapter 02 (Locked) -->
+          <!-- Chapter 02 (Locked for demo) -->
           <div class="chapter-card locked">
             <div class="chapter-card-header">
               <span class="chapter-num">CHAPTER 02</span>
@@ -132,7 +128,7 @@
             <div class="chapter-locked-badge">ORDER 44-B // SEALED</div>
           </div>
 
-          <!-- Chapter 03 (Locked) -->
+          <!-- Chapter 03 (Locked for demo) -->
           <div class="chapter-card locked">
             <div class="chapter-card-header">
               <span class="chapter-num">CHAPTER 03</span>
@@ -156,11 +152,9 @@
       </div>
     </section>
 
-    <!-- ========================================================
-         SCREEN 3: DESKTOP OS ("THE EVIDENCE ROOM" // AEGIS-OS)
-         ======================================================== -->
+    <!-- Screen 3: Desktop OS (AEGIS-OS Investigation Workspace) -->
     <section id="screen-desktop" class="screen" aria-label="Desktop OS">
-      <!-- Top Status Bar -->
+      <!-- Top Status Bar: Live stage, real-time objective lead, and MSK clock -->
       <header class="desktop-topbar">
         <div class="topbar-left">
           <div class="os-logo-pill">
@@ -196,7 +190,7 @@
       <!-- Desktop Workspace Canvas -->
       <main class="desktop-canvas">
 
-        <!-- Quick Notes Drawer (Slide-out) -->
+        <!-- Quick Notes Drawer (Live intel log) -->
         <aside class="notes-drawer" id="notes-drawer">
           <div class="notes-drawer-header">
             <span class="notes-drawer-title">DARIA'S QUICK NOTES // INTEL LOG</span>
@@ -205,9 +199,7 @@
           <div class="notes-drawer-body" id="notes-list"></div>
         </aside>
 
-        <!-- ====================================================
-             WINDOW 1: CASE DOSSIER (PAPER-ON-GLASS DOCUMENTS)
-             ==================================================== -->
+        <!-- Window 1: Case Dossier (Documents, Autopsy, and Crime Scene) -->
         <div class="os-window" id="win-dossier" style="width:840px; height:580px; top:60px; left:60px;">
           <div class="window-header">
             <div class="window-controls">
@@ -229,9 +221,7 @@
           </div>
         </div>
 
-        <!-- ====================================================
-             WINDOW 2: PERSONS OF INTEREST (SUSPECT PROFILES)
-             ==================================================== -->
+        <!-- Window 2: Persons of Interest (Suspect Profiles) -->
         <div class="os-window" id="win-poi" style="width:860px; height:540px; top:80px; left:120px;">
           <div class="window-header">
             <div class="window-controls">
@@ -250,9 +240,7 @@
           </div>
         </div>
 
-        <!-- ====================================================
-             WINDOW 3: FORENSIC LAB (HEX, CCTV & BIOMETRICS, WIRETAP)
-             ==================================================== -->
+        <!-- Window 3: Forensic Lab (Hex Repair, CCTV, and Wiretap) -->
         <div class="os-window" id="win-lab" style="width:880px; height:620px; top:50px; left:180px;">
           <div class="window-header">
             <div class="window-controls">
@@ -355,9 +343,7 @@
           </div>
         </div>
 
-        <!-- ====================================================
-             WINDOW 4: EVIDENCE BOARD (RED STRING CORKBOARD)
-             ==================================================== -->
+        <!-- Window 4: Evidence Board (Red String Corkboard) -->
         <div class="os-window" id="win-board" style="width:840px; height:580px; top:70px; left:220px;">
           <div class="window-header">
             <div class="window-controls">
@@ -388,9 +374,7 @@
           </div>
         </div>
 
-        <!-- ====================================================
-             WINDOW 5: DEADHAND TERMINAL & FINAL INDICTMENT
-             ==================================================== -->
+        <!-- Window 5: Deadhand Terminal & Final Indictment Form -->
         <div class="os-window" id="win-terminal" style="width:820px; height:580px; top:90px; left:280px;">
           <div class="window-header">
             <div class="window-controls">
@@ -487,9 +471,7 @@
           </div>
         </div>
 
-        <!-- ====================================================
-             MACOS-STYLE BOTTOM DOCK
-             ==================================================== -->
+        <!-- macOS-Style Bottom Dock -->
         <nav class="desktop-dock" aria-label="Application Dock">
           <button type="button" class="dock-item" data-target-window="win-dossier" aria-label="Case Dossier">
             <i data-lucide="folder-lock" style="width:24px; height:24px;"></i>
@@ -524,9 +506,7 @@
       </main>
     </section>
 
-    <!-- ========================================================
-         ENDING RESOLUTION MODAL (DECLASSIFIED INDICTMENT)
-         ======================================================== -->
+    <!-- Case Resolution Modal: Declassified Indictment -->
     <div class="ending-resolution-overlay" id="ending-overlay">
       <div class="ending-modal-card">
         <div class="ending-stamp">[ INDICTED ]</div>
@@ -552,7 +532,7 @@
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Leaflet JS CDN -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 

@@ -1,11 +1,8 @@
-/* ============================================================
-   THE EVIDENCE ROOM — AEGIS-OS CYBER-FORENSICS WORKSTATION
-   Layout, Windows, Transitions, Paper-on-Glass, Dock & Components
-   ============================================================ */
+/* Workstation OS Styles: Window dragging, screen transitions, dock, and responsive styling.
+   Teammates: Keep this file focused on layout and UI animations. Color variables and font tokens
+   live in theme.css so we do not repeat hex values across rules. */
 
-/* ------------------------------------------------------------
-   1. APP CONTAINER & MASTER SCREEN ROUTER
-   ------------------------------------------------------------ */
+/* Main screen wrapper and transition states between Title -> Chapters -> Desktop */
 #app {
   position: relative;
   width: 100vw;
@@ -31,7 +28,7 @@
   z-index: 5;
 }
 
-/* Biometric Laser Scanner Sweep Animation */
+/* Animated scanner line effect when transitioning into the archives */
 .laser-sweep {
   position: fixed;
   top: -20px;
@@ -56,7 +53,7 @@
   100% { top: 100%; opacity: 0; }
 }
 
-/* Subtle CRT phosphor scanline texture */
+/* Subtle CRT scanline and vignette texture overlay across the viewport */
 .crt-overlay {
   position: fixed;
   inset: 0;
@@ -68,9 +65,7 @@
   opacity: 0.35;
 }
 
-/* ------------------------------------------------------------
-   2. SCREEN: TITLE SCREEN (OBSIDIAN DESK + SUSPENDED BADGE)
-   ------------------------------------------------------------ */
+/* Title screen layout: background glow and Daria's suspended badge */
 #screen-title {
   display: flex;
   align-items: center;
@@ -89,7 +84,7 @@
   z-index: 2;
 }
 
-/* Suspended FBI / Forensic Investigator Badge */
+/* Daria Volkov's physical forensics ID badge hanging by lanyard */
 .investigator-badge-wrap {
   position: relative;
   margin-bottom: -1.75rem;
@@ -190,7 +185,7 @@
   display: inline-block;
 }
 
-/* Frosted Dossier Card */
+/* Center frosted dossier card with unauthorized session header */
 .title-dossier-card {
   position: relative;
   width: 100%;
@@ -252,7 +247,7 @@
   max-width: 540px;
 }
 
-/* Crimson [ CLOSED ] Stamp */
+/* Crimson "CLOSED" stamp with rotate angle and shatter animation on enter */
 .stamp-closed {
   position: absolute;
   top: 2rem;
@@ -278,7 +273,7 @@
   filter: blur(10px);
 }
 
-/* Dossier Actions & CTA */
+/* Investigate and restart action buttons on the title card */
 .dossier-actions {
   display: flex;
   align-items: center;
@@ -391,9 +386,7 @@
   font-size: 11px;
 }
 
-/* ------------------------------------------------------------
-   3. SCREEN: CHAPTERS SCREEN (LEAFLET MAP + JURISDICTIONS)
-   ------------------------------------------------------------ */
+/* Chapter selection screen: top nav bar and background Leaflet map viewport */
 #screen-chapters {
   display: flex;
   flex-direction: column;
@@ -449,16 +442,35 @@
   position: relative;
   flex: 1;
   width: 100%;
+  height: calc(100vh - 48px);
+  min-height: 420px;
 }
 
 #leaflet-map {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
   background: #080B0F;
   z-index: 1;
 }
 
-/* Floating Chapter Selection Cards Overlay */
+/* Radar wave animation for the glowing map markers in Moscow and Novosibirsk */
+.marker-pulse-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  opacity: 0.35;
+  animation: pulseMarker 2s infinite ease-out;
+}
+
+@keyframes pulseMarker {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  70% { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Floating chapter cards anchored over the map */
 .chapters-floating-tray {
   position: absolute;
   bottom: 2.5rem;
@@ -577,7 +589,7 @@
   text-align: center;
 }
 
-/* 3-Line Handshake Modal */
+/* Terminal handshake modal that displays between Chapter 01 and the Desktop */
 .handshake-modal {
   position: fixed;
   inset: 0;
@@ -624,16 +636,14 @@
 .handshake-bypassed { color: var(--accent-amber); font-weight: bold; }
 .handshake-mount { color: var(--accent-ice); font-weight: bold; }
 
-/* ------------------------------------------------------------
-   4. SCREEN: DESKTOP OS ("THE EVIDENCE ROOM" // AEGIS-OS)
-   ------------------------------------------------------------ */
+/* Main desktop layout: top status bar, window area, and macOS dock */
 #screen-desktop {
   display: flex;
   flex-direction: column;
   background: radial-gradient(circle at 50% 30%, #161D27 0%, #0D1117 80%);
 }
 
-/* Desktop Top Status Bar */
+/* Top status bar: live MSK clock, objective pill, and stage indicator */
 .desktop-topbar {
   height: 40px;
   background: rgba(22, 27, 34, 0.9);
@@ -697,6 +707,18 @@
   color: var(--accent-ice);
   padding: 1px 7px;
   border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Highlight pulse animation triggered whenever stage or quick notes count updates */
+@keyframes livePillPulse {
+  0% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.15); filter: brightness(1.7); box-shadow: 0 0 12px var(--accent-ice); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+.pill-updated {
+  animation: livePillPulse 0.5s ease-out;
 }
 
 .topbar-center {
@@ -781,7 +803,7 @@
   color: var(--accent-crimson);
 }
 
-/* Desktop Workspace Canvas */
+/* Desktop window container area */
 .desktop-canvas {
   position: relative;
   flex: 1;
@@ -789,7 +811,7 @@
   overflow: hidden;
 }
 
-/* Quick Notes Slide-out Drawer */
+/* Slide-out quick notes drawer on the right side */
 .notes-drawer {
   position: absolute;
   top: 0;
@@ -856,7 +878,7 @@
   margin-bottom: 4px;
 }
 
-/* macOS-Style Bottom Dock */
+/* Bottom application dock inspired by macOS */
 .desktop-dock {
   position: absolute;
   bottom: 1rem;
@@ -941,9 +963,7 @@
   transform: translateY(0);
 }
 
-/* ------------------------------------------------------------
-   5. FLOATING WINDOW SYSTEM (DRAGGABLE, RESIZABLE, MAC CHROME)
-   ------------------------------------------------------------ */
+/* Floating draggable windows with frosted glass backdrops */
 .os-window {
   position: absolute;
   background: var(--bg-panel);
@@ -989,7 +1009,7 @@
   cursor: grabbing;
 }
 
-/* macOS-Style Traffic Light Dots */
+/* Window title bar controls (close, minimize, expand dots) */
 .window-controls {
   display: flex;
   align-items: center;
@@ -1031,11 +1051,7 @@
   position: relative;
 }
 
-/* ------------------------------------------------------------
-   6. "PAPER-ON-GLASS" DOCUMENT VIEWER (OFFICIAL CORONER / NOTES)
-   Rule: Warm off-white #F6F5F0, dark charcoal ink #1C2128, 
-   15px Inter, Letterhead styling, Redaction bars, Margin notes
-   ------------------------------------------------------------ */
+/* Case dossier layout: sidebar index and paper document reader */
 .dossier-layout {
   display: flex;
   gap: 1.25rem;
@@ -1087,7 +1103,7 @@
   padding-right: 4px;
 }
 
-/* The Paper Sheet */
+/* Paper-on-glass sheet: off-white texture and official bureau letterhead */
 .paper-sheet {
   background: var(--paper-bg);
   color: var(--paper-ink);
@@ -1168,7 +1184,7 @@
   margin-bottom: 1.1rem;
 }
 
-/* Black Marker Redaction Bars (Peel away on hover or declassify) */
+/* Redacted text bars that reveal the underlying text on hover */
 .redaction-bar {
   display: inline-block;
   background: #1C2128;
@@ -1188,7 +1204,7 @@
   box-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
 }
 
-/* Daria's Handwritten Margin Notes */
+/* Daria's handwritten margin notes styled in red cursive ink */
 .daria-margin-note {
   font-family: var(--font-handwriting);
   font-weight: 700;
@@ -1214,9 +1230,7 @@
   margin-bottom: 2px;
 }
 
-/* ------------------------------------------------------------
-   7. INTERACTIVE CRIME SCENE VIEWER (INLINE SVG + HOTSPOTS)
-   ------------------------------------------------------------ */
+/* Interactive SVG floorplan with clickable evidence hotspots */
 .crime-scene-container {
   display: flex;
   flex-direction: column;
@@ -1285,9 +1299,7 @@
   line-height: 1.5;
 }
 
-/* ------------------------------------------------------------
-   8. PERSONS OF INTEREST (POI CARDS + SVG PORTRAITS)
-   ------------------------------------------------------------ */
+/* Persons of Interest profile cards, portraits, and alibi statements */
 .poi-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1396,9 +1408,7 @@
   animation: fadeIn 0.3s ease;
 }
 
-/* ------------------------------------------------------------
-   9. FORENSIC LAB (TABS, HEX EDITOR, CCTV CANVAS, BIOMETRICS)
-   ------------------------------------------------------------ */
+/* Forensic lab tools: tab bar navigation and active panel views */
 .lab-tabbar {
   display: flex;
   gap: 8px;
@@ -1445,7 +1455,7 @@
   display: block;
 }
 
-/* Hex Editor Puzzle */
+/* Hex editor minigame to restore corrupted disk sector bytes */
 .hex-editor-wrapper {
   background: #090D12;
   border: 1px solid var(--border-hairline);
@@ -1509,7 +1519,7 @@
   color: var(--text-muted);
 }
 
-/* Procedural CCTV Video Player */
+/* Canvas CCTV surveillance camera player and playback controls */
 .cctv-player-container {
   background: #06090D;
   border: 1px solid var(--border-hairline);
@@ -1596,7 +1606,7 @@
   min-width: 90px;
 }
 
-/* Biometrics & Chart.js Container */
+/* Chart.js biometrics graph container for toxicology spikes */
 .biometrics-wrapper {
   margin-top: 1.5rem;
   background: var(--bg-surface);
@@ -1610,7 +1620,7 @@
   position: relative;
 }
 
-/* Voiced Wiretap & Audio Player */
+/* Intercepted audio wiretap player with waveform visualization */
 .wiretap-container {
   display: flex;
   flex-direction: column;
@@ -1682,7 +1692,7 @@
   margin-right: 6px;
 }
 
-/* Caesar Decryption Console */
+/* Caesar cipher frequency shift slider and decrypted text preview */
 .cipher-decryptor-box {
   background: var(--bg-surface);
   border: 1px solid var(--border-hairline);
@@ -1741,9 +1751,7 @@
   box-shadow: 0 0 16px rgba(63, 185, 80, 0.2);
 }
 
-/* ------------------------------------------------------------
-   10. EVIDENCE BOARD (RED STRING CORKBOARD CANVAS)
-   ------------------------------------------------------------ */
+/* Evidence corkboard with red string connections drawn on canvas */
 .board-container {
   position: relative;
   min-height: 520px;
@@ -1846,9 +1854,7 @@
   line-height: 1.45;
 }
 
-/* ------------------------------------------------------------
-   11. DEADHAND TERMINAL & FINAL INDICTMENT
-   ------------------------------------------------------------ */
+/* Deadhand command terminal, molecular peptide sequencer, and indictment form */
 .terminal-subtabs {
   display: flex;
   gap: 8px;
@@ -1880,7 +1886,7 @@
   display: block;
 }
 
-/* CLI Shell */
+/* Interactive command prompt shell interface */
 .terminal-shell-box {
   background: #080C10;
   border: 1px solid var(--border-hairline);
@@ -1935,7 +1941,7 @@
   outline: none;
 }
 
-/* Serum V-7 Sequencer */
+/* Serum V-7 molecular peptide slot matcher */
 .serum-sequencer-box {
   background: var(--bg-surface);
   border: 1px solid var(--border-hairline);
@@ -2011,7 +2017,7 @@
   pointer-events: none;
 }
 
-/* Final Indictment Form */
+/* Formal indictment form to name the culprit and co-conspirators */
 .indictment-form-box {
   background: var(--bg-surface);
   border: 1px solid var(--border-hairline);
@@ -2099,7 +2105,7 @@
   transform: translateY(-1px);
 }
 
-/* Declassification & Ending Resolution Modal */
+/* Final case resolution popup showing the official declassified verdict */
 .ending-resolution-overlay {
   position: fixed;
   inset: 0;
@@ -2164,9 +2170,7 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
-/* ============================================================
-   12. RESPONSIVE ADAPTATIONS (TABLET & MOBILE)
-   ============================================================ */
+/* Responsive layout adjustments for tablet and mobile screens */
 
 #app {
   height: 100dvh;

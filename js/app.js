@@ -1,16 +1,11 @@
-/* ============================================================
-   THE EVIDENCE ROOM — Master Application Controller & UI Logic
-   Screen Transitions, Draggable Floating Windows, macOS Dock,
-   Paper-on-Glass Documents, Quick Notes & Lucide Icons
-   ============================================================ */
+// Main application controller: manages screen transitions, floating draggable windows,
+// live status updates from GameState, document reader, and bottom macOS-style dock.
 
 window.App = (() => {
   let highestZIndex = 100;
   let activeDossierFileId = 'death-certificate';
 
-  /* ============================================================
-     1. INITIALIZATION & SCREEN ROUTING
-     ============================================================ */
+  // Initialize the workstation UI and bind event listeners
   function init() {
     GameState.load();
     setupClock();
@@ -23,14 +18,13 @@ window.App = (() => {
     setupTerminalTabs();
     renderPersonsOfInterest();
 
-    // Initialize Forensic & Media Engines
-    MediaEngine.initLeafletMap('leaflet-map');
+    // Initialize media and procedural engines
     MediaEngine.renderCrimeScene('crime-scene-svg-container', 'forensic-popup-card');
     MediaEngine.initCctvPlayer();
     MediaEngine.initToxicologyChart();
     MediaEngine.initWiretapPlayer();
 
-    // Initialize Puzzle Engines
+    // Initialize interactive puzzles
     PuzzleEngine.initHexEditor();
     PuzzleEngine.initCipherDecryptor();
     PuzzleEngine.initEvidenceBoard();
@@ -38,7 +32,15 @@ window.App = (() => {
     PuzzleEngine.initSerumSequencer();
     PuzzleEngine.initIndictmentForm();
 
-    // Render Lucide Icons
+    // Subscribe to live state updates so stage, notes, and unlocks update immediately without reloading
+    GameState.subscribe((st, changeType) => {
+      refreshDesktopState();
+      renderPersonsOfInterest();
+      renderDossierFileList();
+      syncLabTabUnlocks();
+    });
+
+    // Render Lucide icons
     if (typeof lucide !== 'undefined') {
       lucide.createIcons();
     }
@@ -46,25 +48,22 @@ window.App = (() => {
     refreshDesktopState();
   }
 
+  // Switch between title, chapter select, and desktop screens
   function setScreen(screenId) {
     document.querySelectorAll('.screen').forEach((s) => s.classList.remove('screen--active'));
     const target = document.getElementById(screenId);
     if (target) target.classList.add('screen--active');
 
+    // When navigating to the chapters screen, ensure Leaflet calculates its viewport correctly
     if (screenId === 'screen-chapters') {
-      setTimeout(() => {
-        MediaEngine.initLeafletMap('leaflet-map');
-      }, 100);
+      MediaEngine.refreshLeafletMap();
     }
   }
 
-  /* ============================================================
-     2. CLOCK & TOP STATUS BAR
-     ============================================================ */
+  // Real-time MSK (Moscow Time, UTC+3) clock in the top status bar
   function setupClock() {
     function update() {
       const now = new Date();
-      // Format in MSK (UTC+3)
       const mskTime = new Date(now.getTime() + (3 * 60 + now.getTimezoneOffset()) * 60000);
       const hours = String(mskTime.getHours()).padStart(2, '0');
       const mins = String(mskTime.getMinutes()).padStart(2, '0');
@@ -78,22 +77,44 @@ window.App = (() => {
     setInterval(update, 1000);
   }
 
+  // Live UI sync for the top status bar and quick notes drawer
   function refreshDesktopState() {
     const st = GameState.get();
     const stagePill = document.getElementById('topbar-stage-pill');
     const objectiveEl = document.getElementById('objective-text');
     const notesBadge = document.getElementById('notes-count-badge');
 
-    if (stagePill) stagePill.textContent = `STAGE ${st.stage}`;
-    if (objectiveEl) objectiveEl.textContent = GameState.getStageObjective();
-    if (notesBadge) notesBadge.textContent = st.notes.length;
+    if (stagePill) {
+      stagePill.textContent = `STAGE ${st.stage}`;
+      stagePill.classList.remove('pill-updated');
+      void stagePill.offsetWidth; // trigger reflow for smooth highlight pulse
+      stagePill.classList.add('pill-updated');
+    }
+
+    if (objectiveEl) {
+      objectiveEl.textContent = GameState.getStageObjective();
+    }
+
+    if (notesBadge) {
+      notesBadge.textContent = st.notes.length;
+      notesBadge.classList.remove('pill-updated');
+      void notesBadge.offsetWidth;
+      notesBadge.classList.add('pill-updated');
+    }
 
     renderQuickNotes();
   }
 
-  /* ============================================================
-     3. TITLE SCREEN CONTROLLER
-     ============================================================ */
+  // Unlock Forensic Lab Tab 2 once the hex puzzle has been solved
+  function syncLabTabUnlocks() {
+    const st = GameState.get();
+    const cctvTabBtn = document.getElementById('tab-btn-cctv');
+    if (cctvTabBtn && st.puzzles.hexComplete) {
+      cctvTabBtn.classList.remove('locked');
+    }
+  }
+
+  // Title Screen: Start new investigation or resume saved progress
   function setupTitleScreen() {
     const btnInvestigate = document.getElementById('btn-investigate');
     const btnSubtag = document.getElementById('investigate-subtag');
@@ -121,10 +142,7 @@ window.App = (() => {
     refreshTitleButtons();
 
     btnInvestigate.addEventListener('click', () => {
-      // Shatter tilted closed stamp
       closedStamp.classList.add('shattered');
-
-      // Biometric laser sweep line across screen
       laserSweep.classList.add('sweeping');
 
       setTimeout(() => {
@@ -154,9 +172,7 @@ window.App = (() => {
     });
   }
 
-  /* ============================================================
-     4. CHAPTERS SCREEN CONTROLLER
-     ============================================================ */
+  // Chapters Screen: Map view and Chapter 1 entrance handshake
   function setupChaptersScreen() {
     const btnBackTitle = document.getElementById('btn-back-title');
     const btnEnterCh1 = document.getElementById('btn-enter-ch1');
@@ -169,7 +185,7 @@ window.App = (() => {
     btnEnterCh1.addEventListener('click', () => {
       MediaEngine.zoomToNovosibirsk();
 
-      // Show 3-line terminal handshake
+      // Display the 3-line terminal handshake
       handshakeModal.classList.add('active');
       const lines = [
         document.getElementById('hs-line-1'),
@@ -187,15 +203,13 @@ window.App = (() => {
         setScreen('screen-desktop');
         refreshDesktopState();
 
-        // Auto open Case Dossier on first entry
+        // Open Case Dossier on first entry
         openWindow('win-dossier');
       }, 2000);
     });
   }
 
-  /* ============================================================
-     5. DESKTOP & FLOATING WINDOW SYSTEM
-     ============================================================ */
+  // Desktop Status Bar buttons and quick notes drawer toggle
   function setupDesktopUI() {
     const btnExit = document.getElementById('btn-exit-os');
     const btnNotesToggle = document.getElementById('btn-notes-toggle');
@@ -204,7 +218,6 @@ window.App = (() => {
 
     btnExit.addEventListener('click', () => {
       setScreen('screen-title');
-      const btnInvestigate = document.getElementById('btn-investigate');
       const btnSubtag = document.getElementById('investigate-subtag');
       const investigateLabel = document.getElementById('investigate-label');
       investigateLabel.textContent = '[ RESUME INVESTIGATION ]';
@@ -223,7 +236,6 @@ window.App = (() => {
       btnNotesToggle.classList.remove('active');
     });
 
-    // Close Resolution Modal Button
     const btnCloseEnding = document.getElementById('btn-close-ending');
     if (btnCloseEnding) {
       btnCloseEnding.addEventListener('click', () => {
@@ -232,6 +244,7 @@ window.App = (() => {
     }
   }
 
+  // Renders entries inside Daria's quick notes drawer
   function renderQuickNotes() {
     const notesList = document.getElementById('notes-list');
     if (!notesList) return;
@@ -249,11 +262,12 @@ window.App = (() => {
       .join('');
   }
 
+  // Window management: dragging, bringing to front, minimize, expand, and close
   function setupWindowSystem() {
     const dockItems = document.querySelectorAll('.dock-item');
     const windows = document.querySelectorAll('.os-window');
 
-    // Dock Item Click -> Toggle Window
+    // Clicking a dock icon toggles or brings the window to the front
     dockItems.forEach((item) => {
       item.addEventListener('click', () => {
         const winId = item.dataset.targetWindow;
@@ -263,7 +277,6 @@ window.App = (() => {
         if (!targetWin) return;
 
         if (targetWin.classList.contains('open') && !targetWin.classList.contains('minimized')) {
-          // If already focused, minimize it
           if (targetWin.classList.contains('focused')) {
             targetWin.classList.add('minimized');
             item.classList.remove('active');
@@ -276,7 +289,7 @@ window.App = (() => {
       });
     });
 
-    // Window Dragging & Chrome Buttons
+    // Window chrome controls and header dragging
     windows.forEach((win) => {
       const header = win.querySelector('.window-header');
       const closeBtn = win.querySelector('.dot-close');
@@ -311,7 +324,6 @@ window.App = (() => {
         });
       }
 
-      // Smooth Dragging
       if (header) {
         let isDragging = false;
         let startX, startY, initLeft, initTop;
@@ -359,7 +371,6 @@ window.App = (() => {
     win.classList.add('open');
     focusWindow(win);
 
-    // Initial positioning if not set
     if (!win.style.top || !win.style.left) {
       const offsetCount = document.querySelectorAll('.os-window.open').length * 24;
       const leftPos = Math.max(20, Math.floor((window.innerWidth - (win.offsetWidth || 780)) / 2) + (offsetCount % 120) - 60);
@@ -374,7 +385,6 @@ window.App = (() => {
       dockItem.classList.add('active');
     }
 
-    // Refresh layout-specific widgets when opened
     if (winId === 'win-lab') {
       setTimeout(() => {
         MediaEngine.resizeCctv();
@@ -412,9 +422,7 @@ window.App = (() => {
     });
   }
 
-  /* ============================================================
-     6. "PAPER-ON-GLASS" DOSSIER VIEWER CONTROLLER
-     ============================================================ */
+  // Case Dossier: Paper-on-glass document reader
   function setupDossierViewer() {
     renderDossierFileList();
     renderDossierActiveDocument();
@@ -489,7 +497,6 @@ window.App = (() => {
       return;
     }
 
-    // Standard Paper-on-Glass Document
     const metaRows = file.metaGrid
       .map((m) => `<div><dt>${m.label}</dt><dd>${m.value}</dd></div>`)
       .join('');
@@ -519,7 +526,6 @@ window.App = (() => {
       </div>
     `;
 
-    // Redaction bars peel on click/hover
     viewer.querySelectorAll('.redaction-bar').forEach((bar) => {
       bar.addEventListener('click', () => {
         bar.classList.toggle('declassified');
@@ -527,9 +533,7 @@ window.App = (() => {
     });
   }
 
-  /* ============================================================
-     7. PERSONS OF INTEREST (POI CARDS)
-     ============================================================ */
+  // Persons of Interest: Suspect cards, official alibis, and uncovered secrets
   function renderPersonsOfInterest() {
     const container = document.getElementById('poi-card-grid');
     if (!container) return;
@@ -576,9 +580,7 @@ window.App = (() => {
     if (typeof lucide !== 'undefined') lucide.createIcons();
   }
 
-  /* ============================================================
-     8. FORENSIC LAB & TERMINAL TAB NAVIGATION
-     ============================================================ */
+  // Tab navigation for Forensic Lab and Deadhand Terminal
   function setupLabTabs() {
     const tabs = [
       { btn: document.getElementById('tab-btn-sector'), pane: document.getElementById('tab-pane-sector') },
@@ -610,10 +612,7 @@ window.App = (() => {
       });
     });
 
-    // Unlocking condition
-    if (GameState.get().puzzles.hexComplete) {
-      document.getElementById('tab-btn-cctv')?.classList.remove('locked');
-    }
+    syncLabTabUnlocks();
   }
 
   function setupTerminalTabs() {
@@ -647,7 +646,7 @@ window.App = (() => {
   };
 })();
 
-// Initialize once DOM is ready
+// Initialize once the HTML document has loaded
 document.addEventListener('DOMContentLoaded', () => {
   window.App.init();
 });

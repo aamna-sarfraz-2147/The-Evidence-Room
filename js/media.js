@@ -1,13 +1,9 @@
-/* ============================================================
-   THE EVIDENCE ROOM — Procedural Multimedia Engine
-   Zero broken external assets: Canvas CCTV, Web Audio + Speech,
-   Chart.js Biometrics, Inline SVG Crime Scene, Leaflet Map
-   ============================================================ */
+// Media and interactive components: Crime scene floorplan, CCTV canvas player,
+// Chart.js biometrics chart, voiced radio wiretap, and Leaflet jurisdiction map.
 
 const MediaEngine = (() => {
-  /* ============================================================
-     1. INLINE SVG ARCHITECTURAL CRIME SCENE VIEWER
-     ============================================================ */
+  // 1. Interactive Crime Scene Floorplan
+  // Renders the biosecurity chamber SVG and wires up the three investigation hotspots
   function renderCrimeScene(containerId, popupCardId) {
     const container = document.getElementById(containerId);
     const popupCard = document.getElementById(popupCardId);
@@ -39,7 +35,6 @@ const MediaEngine = (() => {
         <!-- Decontamination Airlock Zone -->
         <rect x="50" y="160" width="120" height="160" fill="#161B22" stroke="#484F58" stroke-width="1.5"/>
         <text x="60" y="185" fill="#8B949E" font-family="JetBrains Mono" font-size="10" letter-spacing="1">L4 AIRLOCK</text>
-        <!-- Airlock Sliding Door -->
         <line x1="170" y1="180" x2="170" y2="300" stroke="#58A6FF" stroke-width="3"/>
 
         <!-- Biosecurity Hood & Workbench -->
@@ -53,7 +48,6 @@ const MediaEngine = (() => {
         <!-- Monitors on desk -->
         <rect x="330" y="260" width="60" height="20" fill="#0D1117" stroke="#58A6FF" stroke-width="1"/>
         <rect x="400" y="260" width="60" height="20" fill="#0D1117" stroke="#58A6FF" stroke-width="1"/>
-        <!-- Chair footprint -->
         <circle cx="400" cy="360" r="18" fill="#161B22" stroke="#484F58" stroke-dasharray="3 3"/>
 
         <!-- Incubator & Storage Racks -->
@@ -64,21 +58,21 @@ const MediaEngine = (() => {
         <circle cx="670" cy="380" r="24" fill="#0D1117" stroke="#F85149" stroke-width="1.5"/>
         <text x="645" y="384" fill="#F85149" font-family="JetBrains Mono" font-size="8">SAFETY SHOWER</text>
 
-        <!-- HOTSPOT A: Viktor's Steel Thermos -->
+        <!-- Hotspot A: Viktor's Steel Thermos -->
         <g id="hotspot-thermos" class="hotspot-group" transform="translate(315, 280)">
           <circle cx="0" cy="0" r="16" fill="url(#hotspotGlow)" class="hotspot-pulse"/>
           <circle cx="0" cy="0" r="6" fill="#D29922"/>
           <text x="12" y="4" fill="#D29922" font-family="JetBrains Mono" font-size="11" font-weight="700">[A] THERMOS</text>
         </g>
 
-        <!-- HOTSPOT B: Airlock Biometric Keypad -->
+        <!-- Hotspot B: Airlock Biometric Keypad -->
         <g id="hotspot-keypad" class="hotspot-group" transform="translate(170, 240)">
           <circle cx="0" cy="0" r="16" fill="url(#hotspotGlow)" class="hotspot-pulse"/>
           <circle cx="0" cy="0" r="6" fill="#58A6FF"/>
           <text x="-95" y="4" fill="#58A6FF" font-family="JetBrains Mono" font-size="11" font-weight="700">[B] KEYPAD</text>
         </g>
 
-        <!-- HOTSPOT C: Wiped Workstation Terminal -->
+        <!-- Hotspot C: Wiped Workstation Terminal -->
         <g id="hotspot-terminal" class="hotspot-group" transform="translate(430, 270)">
           <circle cx="0" cy="0" r="16" fill="url(#hotspotGlow)" class="hotspot-pulse"/>
           <circle cx="0" cy="0" r="6" fill="#F85149"/>
@@ -120,14 +114,11 @@ const MediaEngine = (() => {
     });
   }
 
-  /* ============================================================
-     2. PROCEDURAL CCTV VIDEO PLAYER (HTML5 CANVAS)
-     "CAM_04 // L4_BIO_CHAMBER", Play/Pause, Scrubber (01:55-02:40),
-     Phosphor Scanlines & Vector Silhouettes
-     ============================================================ */
+  // 2. CCTV Security Camera Simulation (HTML5 Canvas)
+  // Handles timeline scrubbing (01:55 to 02:40 MSK) and silhouette animations
   let cctvAnimFrame = null;
   let cctvPlaying = false;
-  let cctvCurrentSeconds = 0; // 0 = 01:55:00, 2700 = 02:40:00 (45 minutes)
+  let cctvCurrentSeconds = 0; // 0 = 01:55:00, 2700 = 02:40:00 (45 minutes total)
   const CCTV_TOTAL_SECONDS = 45 * 60; // 2700s
 
   function formatCctvTime(sec) {
@@ -177,15 +168,14 @@ const MediaEngine = (() => {
       const w = canvas.width || 640;
       const h = canvas.height || 320;
 
-      // 1. Phosphor Night-Vision Dark Slate-Green Background
+      // Dark slate-green phosphor background
       ctx.fillStyle = '#060D09';
       ctx.fillRect(0, 0, w, h);
 
-      // 2. Perspective Lab Room Geometry
+      // Perspective room geometry
       ctx.strokeStyle = 'rgba(63, 185, 80, 0.18)';
       ctx.lineWidth = 1;
 
-      // Floor grid perspective
       const vanishY = h * 0.35;
       for (let x = 0; x <= w; x += w / 10) {
         ctx.beginPath();
@@ -194,13 +184,13 @@ const MediaEngine = (() => {
         ctx.stroke();
       }
 
-      // Back Wall & Airlock Frame
+      // Back wall and airlock door
       ctx.fillStyle = '#09150E';
       ctx.fillRect(w * 0.08, vanishY - 40, w * 0.2, h * 0.5);
       ctx.strokeStyle = 'rgba(63, 185, 80, 0.3)';
       ctx.strokeRect(w * 0.08, vanishY - 40, w * 0.2, h * 0.5);
 
-      // Workstation Console Desk
+      // Workstation desk
       const deskX = w * 0.45;
       const deskY = h * 0.48;
       const deskW = w * 0.38;
@@ -210,19 +200,14 @@ const MediaEngine = (() => {
       ctx.strokeStyle = 'rgba(63, 185, 80, 0.4)';
       ctx.strokeRect(deskX, deskY, deskW, deskH);
 
-      // Monitor Screen Glow
+      // Console monitor glow
       ctx.fillStyle = 'rgba(88, 166, 255, 0.25)';
       ctx.fillRect(deskX + 20, deskY - 35, 55, 35);
       ctx.strokeRect(deskX + 20, deskY - 35, 55, 35);
 
-      // 3. Dynamic Silhouettes Based on Time
-      // 01:55 = 0s.
-      // 02:04 = 9 mins = 540s (Vane enters with 2 mugs and swaps thermos)
-      // 02:14 = 19 mins = 1140s (Viktor collapses)
-      // 02:34 = 39 mins = 2340s (Malekov aide exits with dossier)
       const sec = cctvCurrentSeconds;
 
-      // Check current active event for Banner
+      // Check key timestamps for event banner and POI discrepancy reveals
       if (sec >= 500 && sec <= 600) {
         banner.textContent = '02:04 MSK // DR. VANE ENTERS // THERMOS SWAP DETECTED';
         banner.classList.add('active');
@@ -238,20 +223,16 @@ const MediaEngine = (() => {
         banner.classList.remove('active');
       }
 
-      // Silhouette: Viktor Volkov
+      // Silhouette: Dr. Viktor Volkov (typing, collapsing, then still)
       if (sec < 1140) {
-        // Seated at console typing
         const jitter = Math.sin(sec * 4) * 1.5;
         ctx.fillStyle = '#11291B';
-        // Head
         ctx.beginPath();
         ctx.arc(deskX + 70 + jitter, deskY + 15, 14, 0, Math.PI * 2);
         ctx.fill();
-        // Torso & arms
         ctx.fillRect(deskX + 50, deskY + 30, 40, 50);
         ctx.fillRect(deskX + 40, deskY + 40, 60, 16);
       } else if (sec >= 1140 && sec <= 1180) {
-        // Collapsing animation (staggering down to floor)
         const prog = (sec - 1140) / 40;
         ctx.fillStyle = '#11291B';
         const fallY = deskY + 20 + prog * 70;
@@ -260,7 +241,6 @@ const MediaEngine = (() => {
         ctx.fill();
         ctx.fillRect(deskX + 40 + prog * 40, fallY + 14, 45, 30);
       } else {
-        // Viktor motionless on the floor beside console
         ctx.fillStyle = '#0F2317';
         ctx.beginPath();
         ctx.ellipse(deskX + 110, deskY + 110, 42, 16, Math.PI * 0.1, 0, Math.PI * 2);
@@ -271,32 +251,28 @@ const MediaEngine = (() => {
       ctx.fillStyle = sec > 560 ? '#D29922' : '#8B949E';
       ctx.fillRect(deskX + 12, deskY + 10, 8, 16);
 
-      // Silhouette: Dr. Nikolai Vane (02:04 MSK = 540s window: 510s to 590s)
+      // Silhouette: Dr. Nikolai Vane swapping the thermos (02:04 MSK)
       if (sec >= 510 && sec <= 590) {
         const vaneProg = (sec - 510) / 80;
-        // Approaches desk, pauses, retreats
         let vaneX = w * 0.18;
         if (vaneProg < 0.4) {
           vaneX = w * 0.18 + (vaneProg / 0.4) * (deskX - w * 0.22);
         } else if (vaneProg < 0.6) {
-          vaneX = deskX - w * 0.04; // Swapping thermos
+          vaneX = deskX - w * 0.04;
         } else {
           vaneX = deskX - w * 0.04 - ((vaneProg - 0.6) / 0.4) * (deskX - w * 0.22);
         }
 
         ctx.fillStyle = '#214D33';
-        // Head with spectacles hint
         ctx.beginPath();
         ctx.arc(vaneX + 15, deskY - 10, 13, 0, Math.PI * 2);
         ctx.fill();
-        // Lab coat torso
         ctx.fillRect(vaneX, deskY + 4, 30, 75);
-        // Mug in hand
         ctx.fillStyle = '#58A6FF';
         ctx.fillRect(vaneX + 28, deskY + 25, 10, 10);
       }
 
-      // Silhouette: General Malekov's Aide (02:34 MSK = 2340s window: 2310s to 2390s)
+      // Silhouette: General Malekov's aide exfiltrating the dossier (02:34 MSK)
       if (sec >= 2310 && sec <= 2390) {
         const aideProg = (sec - 2310) / 80;
         let aideX = w * 0.18;
@@ -307,25 +283,22 @@ const MediaEngine = (() => {
         }
 
         ctx.fillStyle = '#1A3324';
-        // Military Cap Profile
         ctx.beginPath();
         ctx.arc(aideX + 16, deskY - 20, 13, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillRect(aideX + 8, deskY - 30, 20, 6);
-        // Long Military Trench Coat
         ctx.fillRect(aideX, deskY - 6, 32, 90);
-        // Sealed Dossier under arm
         ctx.fillStyle = '#D29922';
         ctx.fillRect(aideX + 22, deskY + 20, 16, 22);
       }
 
-      // 4. Night-Vision Phosphor Scanlines & Lens Grain
+      // Scanline pattern overlay
       ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
       for (let y = 0; y < h; y += 4) {
         ctx.fillRect(0, y, w, 2);
       }
 
-      // Random phosphor speckle
+      // Phosphor speckle
       ctx.fillStyle = 'rgba(63, 185, 80, 0.08)';
       for (let i = 0; i < 40; i++) {
         const rx = Math.random() * w;
@@ -333,12 +306,12 @@ const MediaEngine = (() => {
         ctx.fillRect(rx, ry, 2, 2);
       }
 
-      // Camera HUD Overlay
+      // Camera HUD header
       ctx.fillStyle = '#58A6FF';
       ctx.font = '11px "JetBrains Mono", monospace';
       ctx.fillText(CCTV_DATA.feedName, 14, 22);
 
-      // Blinking REC dot
+      // Blinking recording indicator
       if (Math.floor(Date.now() / 600) % 2 === 0) {
         ctx.fillStyle = '#F85149';
         ctx.beginPath();
@@ -347,18 +320,18 @@ const MediaEngine = (() => {
         ctx.fillText('REC', w - 54, 22);
       }
 
-      // Timestamp
+      // Timecode
       ctx.fillStyle = '#3FB950';
       ctx.fillText(formatCctvTime(cctvCurrentSeconds), 14, h - 14);
 
-      // Crosshair
+      // Centered crosshair
       ctx.strokeStyle = 'rgba(63, 185, 80, 0.35)';
       ctx.strokeRect(w * 0.5 - 20, h * 0.5 - 20, 40, 40);
     }
 
     function step() {
       if (cctvPlaying) {
-        cctvCurrentSeconds += 0.8; // Advance timeline smoothly
+        cctvCurrentSeconds += 0.8;
         if (cctvCurrentSeconds > CCTV_TOTAL_SECONDS) {
           cctvCurrentSeconds = 0;
         }
@@ -386,9 +359,8 @@ const MediaEngine = (() => {
     step();
   }
 
-  /* ============================================================
-     3. CHART.JS TOXICOLOGY & BIOMETRIC SPIKE GRAPH
-     ============================================================ */
+  // 3. Viktor's Biometric & Toxicology Chart (Chart.js)
+  // Shows heart rate spike, fatal potassium surge, and serum concentration
   let toxicologyChart = null;
 
   function initToxicologyChart() {
@@ -498,9 +470,8 @@ const MediaEngine = (() => {
     });
   }
 
-  /* ============================================================
-     4. VOICED WIRETAP & AUDIO LOGS (WEB SPEECH + WEB AUDIO STATIC)
-     ============================================================ */
+  // 4. Voiced Radio Wiretap Player (Web Audio API + Speech Synthesis)
+  // Plays intercepted radio dialogue with background static and live canvas waveform
   let audioCtx = null;
   let noiseNode = null;
   let noiseGain = null;
@@ -519,7 +490,7 @@ const MediaEngine = (() => {
         audioCtx.resume();
       }
 
-      // Generate procedural white noise buffer for radio static
+      // Procedural white noise buffer for radio static
       const bufferSize = audioCtx.sampleRate * 2;
       const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
       const output = noiseBuffer.getChannelData(0);
@@ -531,21 +502,21 @@ const MediaEngine = (() => {
       noiseNode.buffer = noiseBuffer;
       noiseNode.loop = true;
 
-      // Bandpass filter to sound like an authentic high-frequency radio receiver
+      // Bandpass filter centered at 1400Hz gives an authentic military radio hiss
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'bandpass';
       filter.frequency.value = 1400;
       filter.Q.value = 2.5;
 
       noiseGain = audioCtx.createGain();
-      noiseGain.gain.value = 0.035; // Gentle atmospheric crackle
+      noiseGain.gain.value = 0.035;
 
       noiseNode.connect(filter);
       filter.connect(noiseGain);
       noiseGain.connect(audioCtx.destination);
       noiseNode.start(0);
     } catch (e) {
-      console.warn('Web Audio API static initialization suppressed:', e);
+      console.warn('Web Audio initialization note:', e);
     }
   }
 
@@ -563,7 +534,6 @@ const MediaEngine = (() => {
     const canvas = document.getElementById('wiretap-waveform');
     if (!playBtn || !transcriptBox) return;
 
-    // Render Transcript Lines
     transcriptBox.innerHTML = WIRETAP_DATA.dialogue
       .map((item, idx) => `
         <div class="wiretap-line" id="wiretap-line-${idx}">
@@ -625,7 +595,6 @@ const MediaEngine = (() => {
         utterance.rate = line.voiceParams.rate;
         utterance.pitch = line.voiceParams.pitch;
 
-        // Try to match appropriate English voices
         const voices = window.speechSynthesis.getVoices();
         if (voices.length > 0) {
           const matchedVoice = voices.find((v) =>
@@ -643,7 +612,6 @@ const MediaEngine = (() => {
 
         window.speechSynthesis.speak(utterance);
       } else {
-        // Fallback delay if speech synthesis is blocked
         setTimeout(() => speakLine(index + 1), 3200);
       }
     }
@@ -663,69 +631,150 @@ const MediaEngine = (() => {
     });
   }
 
-  /* ============================================================
-     5. INTERACTIVE LEAFLET MAP (CHAPTERS JURISDICTIONS)
-     CartoDB Dark Matter tiles, custom glowing map pin
-     ============================================================ */
+  // 5. Leaflet Jurisdiction Map
+  // Renders the CartoDB Dark Matter map for Chapter 1 with glowing pins and corridor lines.
+  // Uses ResizeObserver and invalidateSize to guarantee tiles render properly even after screen transitions.
   let leafletMap = null;
+  let mapResizeObserver = null;
 
   function initLeafletMap(containerId = 'leaflet-map') {
     const container = document.getElementById(containerId);
-    if (!container || typeof L === 'undefined') return;
+    if (!container) return;
 
-    if (leafletMap) {
-      leafletMap.remove();
+    // Fallback if Leaflet library is unavailable (e.g. offline environment)
+    if (typeof L === 'undefined') {
+      renderOfflineMapFallback(container);
+      return;
     }
 
-    // Centered on Russia (Moscow to Novosibirsk corridor)
-    leafletMap = L.map(containerId, {
-      center: [55.0, 60.0],
-      zoom: 4,
-      zoomControl: false,
-      attributionControl: false,
-    });
+    // If map instance is already created, simply update its viewport size
+    if (leafletMap) {
+      leafletMap.invalidateSize();
+      return;
+    }
 
-    // CartoDB Dark Matter Tiles (No API key needed)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      subdomains: 'abcd',
-    }).addTo(leafletMap);
-
-    // Custom Glowing Radar Marker Icons
-    const createGlowingIcon = (color, label) => {
-      return L.divIcon({
-        className: 'custom-map-marker',
-        html: `
-          <div style="position:relative; width:16px; height:16px;">
-            <div style="position:absolute; inset:-4px; border-radius:50%; background:${color}; opacity:0.35; animation:pulseBeacon 2s infinite;"></div>
-            <div style="position:absolute; inset:2px; border-radius:50%; background:${color}; border:2px solid #FFFFFF;"></div>
-            <span style="position:absolute; top:20px; left:-30px; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; color:${color}; white-space:nowrap; text-shadow:0 1px 4px #000;">${label}</span>
-          </div>
-        `,
-        iconSize: [16, 16],
-        iconAnchor: [8, 8],
+    try {
+      leafletMap = L.map(containerId, {
+        center: [55.0, 60.0],
+        zoom: 4,
+        zoomControl: false,
+        attributionControl: false,
+        minZoom: 3,
+        maxZoom: 10,
       });
-    };
 
-    const moscowCoords = [55.7558, 37.6173];
-    const novosibirskCoords = [55.0084, 82.9357];
+      // CartoDB Dark Matter tile layer
+      const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        subdomains: 'abcd',
+      });
 
-    L.marker(moscowCoords, { icon: createGlowingIcon('#58A6FF', 'MOSCOW ARCHIVE') }).addTo(leafletMap);
-    L.marker(novosibirskCoords, { icon: createGlowingIcon('#D29922', 'VITYAZ LAB [CH 01]') }).addTo(leafletMap);
+      // Fallback to OpenStreetMap if CartoDB tile errors occur
+      darkTiles.on('tileerror', () => {
+        if (!leafletMap._osmFallbackAdded) {
+          leafletMap._osmFallbackAdded = true;
+          L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            opacity: 0.75,
+          }).addTo(leafletMap);
+        }
+      });
 
-    // Dashed flight / data transport corridor
-    L.polyline([moscowCoords, novosibirskCoords], {
-      color: '#58A6FF',
-      weight: 2,
-      dashArray: '6, 8',
-      opacity: 0.7,
-    }).addTo(leafletMap);
+      darkTiles.addTo(leafletMap);
+
+      // Custom Glowing Map Pin Markers
+      const createGlowingIcon = (color, label) => {
+        return L.divIcon({
+          className: 'custom-map-marker',
+          html: `
+            <div style="position:relative; width:16px; height:16px;">
+              <div class="marker-pulse-ring" style="background:${color};"></div>
+              <div style="position:absolute; inset:2px; border-radius:50%; background:${color}; border:2px solid #FFFFFF;"></div>
+              <span style="position:absolute; top:22px; left:-35px; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; color:${color}; white-space:nowrap; text-shadow:0 1px 4px #000;">${label}</span>
+            </div>
+          `,
+          iconSize: [16, 16],
+          iconAnchor: [8, 8],
+        });
+      };
+
+      const moscowCoords = [55.7558, 37.6173];
+      const novosibirskCoords = [55.0084, 82.9357];
+
+      L.marker(moscowCoords, { icon: createGlowingIcon('#58A6FF', 'MOSCOW ARCHIVE') }).addTo(leafletMap);
+      L.marker(novosibirskCoords, { icon: createGlowingIcon('#D29922', 'VITYAZ LAB [CH 01]') }).addTo(leafletMap);
+
+      // Data corridor dashed flight line between Moscow and Novosibirsk
+      L.polyline([moscowCoords, novosibirskCoords], {
+        color: '#58A6FF',
+        weight: 2,
+        dashArray: '6, 8',
+        opacity: 0.75,
+      }).addTo(leafletMap);
+
+      // Automatically recalculate Leaflet map size whenever container changes dimensions
+      if (window.ResizeObserver && !mapResizeObserver) {
+        mapResizeObserver = new ResizeObserver(() => {
+          if (leafletMap) {
+            leafletMap.invalidateSize();
+          }
+        });
+        mapResizeObserver.observe(container);
+      }
+    } catch (err) {
+      console.warn('Leaflet initialization fallback:', err);
+      renderOfflineMapFallback(container);
+    }
   }
 
+  // Fallback vector map in case network CDN is unreachable
+  function renderOfflineMapFallback(container) {
+    container.innerHTML = `
+      <div style="position:absolute; inset:0; background:#080B0F; display:flex; align-items:center; justify-content:center; flex-direction:column; color:#58A6FF; font-family:'JetBrains Mono', monospace;">
+        <svg viewBox="0 0 800 450" style="width:100%; height:100%; max-width:900px; opacity:0.85;">
+          <!-- Latitude grid lines -->
+          <line x1="50" y1="120" x2="750" y2="120" stroke="#161E29" stroke-width="1.5" stroke-dasharray="4 4"/>
+          <line x1="50" y1="220" x2="750" y2="220" stroke="#161E29" stroke-width="1.5" stroke-dasharray="4 4"/>
+          <line x1="50" y1="320" x2="750" y2="320" stroke="#161E29" stroke-width="1.5" stroke-dasharray="4 4"/>
+          <!-- Polyline connection -->
+          <path d="M 180 230 Q 340 180 520 250" fill="none" stroke="#58A6FF" stroke-width="2.5" stroke-dasharray="6 6"/>
+          <!-- Moscow Marker -->
+          <circle cx="180" cy="230" r="14" fill="rgba(88, 166, 255, 0.25)"/>
+          <circle cx="180" cy="230" r="6" fill="#58A6FF"/>
+          <text x="140" y="265" fill="#58A6FF" font-size="11" font-weight="700">MOSCOW ARCHIVE</text>
+          <!-- Novosibirsk Marker -->
+          <circle cx="520" cy="250" r="14" fill="rgba(210, 153, 34, 0.25)"/>
+          <circle cx="520" cy="250" r="6" fill="#D29922"/>
+          <text x="470" y="285" fill="#D29922" font-size="11" font-weight="700">VITYAZ LAB (55.0084° N, 82.9357° E)</text>
+        </svg>
+      </div>
+    `;
+  }
+
+  // Smooth camera pan to Novosibirsk when clicking Chapter 1
   function zoomToNovosibirsk() {
     if (leafletMap) {
+      leafletMap.invalidateSize();
       leafletMap.flyTo([55.0084, 82.9357], 6, { duration: 1.5 });
     }
+  }
+
+  // Ensures map recalculates properly whenever Chapters screen becomes visible
+  function refreshLeafletMap() {
+    if (!leafletMap) {
+      initLeafletMap('leaflet-map');
+    }
+    setTimeout(() => {
+      if (leafletMap) {
+        leafletMap.invalidateSize();
+        leafletMap.setView([55.0, 60.0], 4);
+      }
+    }, 80);
+    setTimeout(() => {
+      if (leafletMap) {
+        leafletMap.invalidateSize();
+      }
+    }, 450);
   }
 
   return {
@@ -744,6 +793,7 @@ const MediaEngine = (() => {
     initToxicologyChart,
     initWiretapPlayer,
     initLeafletMap,
+    refreshLeafletMap,
     zoomToNovosibirsk,
   };
 })();
