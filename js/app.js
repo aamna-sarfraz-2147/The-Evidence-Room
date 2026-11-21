@@ -23,6 +23,7 @@ window.App = (() => {
     MediaEngine.initCctvPlayer();
     MediaEngine.initToxicologyChart();
     MediaEngine.initWiretapPlayer();
+    MediaEngine.initJurisdictionMap("jurisdiction-map");
 
     // Initialize interactive puzzles
     PuzzleEngine.initHexEditor();
@@ -54,9 +55,9 @@ window.App = (() => {
     const target = document.getElementById(screenId);
     if (target) target.classList.add('screen--active');
 
-    // When navigating to the chapters screen, ensure Leaflet calculates its viewport correctly
+    // When navigating to the chapters screen, ensure tactical jurisdiction map is refreshed
     if (screenId === 'screen-chapters') {
-      MediaEngine.refreshLeafletMap();
+      MediaEngine.refreshJurisdictionMap();
     }
   }
 

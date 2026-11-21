@@ -386,7 +386,7 @@
   font-size: 11px;
 }
 
-/* Chapter selection screen: top nav bar and background Leaflet map viewport */
+/* Chapter selection screen: top nav bar and tactical jurisdiction map */
 #screen-chapters {
   display: flex;
   flex-direction: column;
@@ -444,15 +444,22 @@
   width: 100%;
   height: calc(100vh - 48px);
   min-height: 420px;
+  overflow: hidden;
+  background: radial-gradient(circle at 55% 48%, #101724 0%, #070B10 65%, #040609 100%);
 }
 
-#leaflet-map {
+.tactical-jurisdiction-map {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  background: #080B0F;
-  z-index: 1;
+  overflow: hidden;
+}
+
+.tactical-jurisdiction-map svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 /* Radar wave animation for the glowing map markers in Moscow and Novosibirsk */
@@ -468,6 +475,71 @@
   0% { transform: scale(0.8); opacity: 0.8; }
   70% { transform: scale(2.2); opacity: 0; }
   100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Tactical HUD overlays on the chapter jurisdiction map */
+.tactical-hud-box {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--accent-ice);
+  background: rgba(13, 17, 23, 0.8);
+  border: 1px solid var(--border-hairline);
+  backdrop-filter: blur(6px);
+  padding: 6px 12px;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.hud-top-left {
+  top: 1.25rem;
+  left: 1.5rem;
+}
+
+.hud-top-right {
+  top: 1.25rem;
+  right: 1.5rem;
+  text-align: right;
+}
+
+.hud-bottom-left {
+  bottom: 8.5rem;
+  left: 1.5rem;
+}
+
+.tactical-node-pulse {
+  animation: pulseMarker 2.4s infinite ease-out;
+  transform-origin: center;
+}
+
+.tactical-radar-line {
+  animation: radarBeamRotate 14s linear infinite;
+  transform-origin: 550px 280px;
+}
+
+@keyframes radarBeamRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.tactical-corridor-flow {
+  animation: dataFlowDash 2s linear infinite;
+}
+
+@keyframes dataFlowDash {
+  to { stroke-dashoffset: -32; }
+}
+
+.target-crosshair-group {
+  transition: transform 0.4s var(--ease-spring), filter 0.3s ease;
+  transform-origin: 550px 280px;
+}
+
+.target-crosshair-group.focused {
+  transform: scale(1.22);
+  filter: drop-shadow(0 0 12px rgba(210, 153, 34, 0.85));
 }
 
 /* Floating chapter cards anchored over the map */

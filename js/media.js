@@ -1,5 +1,5 @@
 // Media and interactive components: Crime scene floorplan, CCTV canvas player,
-// Chart.js biometrics chart, voiced radio wiretap, and Leaflet jurisdiction map.
+// Chart.js biometrics chart, voiced radio wiretap, and tactical jurisdiction map.
 
 const MediaEngine = (() => {
   // 1. Interactive Crime Scene Floorplan
@@ -631,150 +631,234 @@ const MediaEngine = (() => {
     });
   }
 
-  // 5. Leaflet Jurisdiction Map
-  // Renders the CartoDB Dark Matter map for Chapter 1 with glowing pins and corridor lines.
-  // Uses ResizeObserver and invalidateSize to guarantee tiles render properly even after screen transitions.
-  let leafletMap = null;
-  let mapResizeObserver = null;
-
-  function initLeafletMap(containerId = 'leaflet-map') {
+  // 5. Tactical Cartographic Jurisdiction Map
+  // Renders a high-resolution, self-contained SVG tactical map of the Eurasian jurisdiction.
+  // Visualizes central Moscow Archive, Novosibirsk Vityaz Lab (Ch 01), and locked Order 44-B sectors.
+  function renderJurisdictionMap(containerId = 'jurisdiction-map') {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    // Fallback if Leaflet library is unavailable (e.g. offline environment)
-    if (typeof L === 'undefined') {
-      renderOfflineMapFallback(container);
-      return;
-    }
-
-    // If map instance is already created, simply update its viewport size
-    if (leafletMap) {
-      leafletMap.invalidateSize();
-      return;
-    }
-
-    try {
-      leafletMap = L.map(containerId, {
-        center: [55.0, 60.0],
-        zoom: 4,
-        zoomControl: false,
-        attributionControl: false,
-        minZoom: 3,
-        maxZoom: 10,
-      });
-
-      // CartoDB Dark Matter tile layer
-      const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19,
-        subdomains: 'abcd',
-      });
-
-      // Fallback to OpenStreetMap if CartoDB tile errors occur
-      darkTiles.on('tileerror', () => {
-        if (!leafletMap._osmFallbackAdded) {
-          leafletMap._osmFallbackAdded = true;
-          L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            opacity: 0.75,
-          }).addTo(leafletMap);
-        }
-      });
-
-      darkTiles.addTo(leafletMap);
-
-      // Custom Glowing Map Pin Markers
-      const createGlowingIcon = (color, label) => {
-        return L.divIcon({
-          className: 'custom-map-marker',
-          html: `
-            <div style="position:relative; width:16px; height:16px;">
-              <div class="marker-pulse-ring" style="background:${color};"></div>
-              <div style="position:absolute; inset:2px; border-radius:50%; background:${color}; border:2px solid #FFFFFF;"></div>
-              <span style="position:absolute; top:22px; left:-35px; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; color:${color}; white-space:nowrap; text-shadow:0 1px 4px #000;">${label}</span>
-            </div>
-          `,
-          iconSize: [16, 16],
-          iconAnchor: [8, 8],
-        });
-      };
-
-      const moscowCoords = [55.7558, 37.6173];
-      const novosibirskCoords = [55.0084, 82.9357];
-
-      L.marker(moscowCoords, { icon: createGlowingIcon('#58A6FF', 'MOSCOW ARCHIVE') }).addTo(leafletMap);
-      L.marker(novosibirskCoords, { icon: createGlowingIcon('#D29922', 'VITYAZ LAB [CH 01]') }).addTo(leafletMap);
-
-      // Data corridor dashed flight line between Moscow and Novosibirsk
-      L.polyline([moscowCoords, novosibirskCoords], {
-        color: '#58A6FF',
-        weight: 2,
-        dashArray: '6, 8',
-        opacity: 0.75,
-      }).addTo(leafletMap);
-
-      // Automatically recalculate Leaflet map size whenever container changes dimensions
-      if (window.ResizeObserver && !mapResizeObserver) {
-        mapResizeObserver = new ResizeObserver(() => {
-          if (leafletMap) {
-            leafletMap.invalidateSize();
-          }
-        });
-        mapResizeObserver.observe(container);
-      }
-    } catch (err) {
-      console.warn('Leaflet initialization fallback:', err);
-      renderOfflineMapFallback(container);
-    }
-  }
-
-  // Fallback vector map in case network CDN is unreachable
-  function renderOfflineMapFallback(container) {
     container.innerHTML = `
-      <div style="position:absolute; inset:0; background:#080B0F; display:flex; align-items:center; justify-content:center; flex-direction:column; color:#58A6FF; font-family:'JetBrains Mono', monospace;">
-        <svg viewBox="0 0 800 450" style="width:100%; height:100%; max-width:900px; opacity:0.85;">
-          <!-- Latitude grid lines -->
-          <line x1="50" y1="120" x2="750" y2="120" stroke="#161E29" stroke-width="1.5" stroke-dasharray="4 4"/>
-          <line x1="50" y1="220" x2="750" y2="220" stroke="#161E29" stroke-width="1.5" stroke-dasharray="4 4"/>
-          <line x1="50" y1="320" x2="750" y2="320" stroke="#161E29" stroke-width="1.5" stroke-dasharray="4 4"/>
-          <!-- Polyline connection -->
-          <path d="M 180 230 Q 340 180 520 250" fill="none" stroke="#58A6FF" stroke-width="2.5" stroke-dasharray="6 6"/>
-          <!-- Moscow Marker -->
-          <circle cx="180" cy="230" r="14" fill="rgba(88, 166, 255, 0.25)"/>
-          <circle cx="180" cy="230" r="6" fill="#58A6FF"/>
-          <text x="140" y="265" fill="#58A6FF" font-size="11" font-weight="700">MOSCOW ARCHIVE</text>
-          <!-- Novosibirsk Marker -->
-          <circle cx="520" cy="250" r="14" fill="rgba(210, 153, 34, 0.25)"/>
-          <circle cx="520" cy="250" r="6" fill="#D29922"/>
-          <text x="470" y="285" fill="#D29922" font-size="11" font-weight="700">VITYAZ LAB (55.0084° N, 82.9357° E)</text>
-        </svg>
+      <div class="tactical-hud-box hud-top-left">
+        <div>AEGIS TACTICAL JURISDICTION DISPLAY // WGS-84</div>
+        <div style="color:var(--text-secondary); margin-top:2px;">GRID: EURASIAN CONTINENTAL CORRIDOR // SECTOR 04</div>
       </div>
+      <div class="tactical-hud-box hud-top-right">
+        <div>SATELLITE DOWNLINK: ENCRYPTED // TELEMETRY STABLE</div>
+        <div style="color:var(--text-secondary); margin-top:2px;">LIVE COORD SYNC: MOSCOW ↔ NOVOSIBIRSK</div>
+      </div>
+      <div class="tactical-hud-box hud-bottom-left">
+        <div>TARGET RETICLE: 55.0084° N, 82.9357° E</div>
+        <div style="color:var(--accent-amber); margin-top:2px;">BEARING: 062° // RANGE: 2,810 KM // VECTOR READY</div>
+      </div>
+
+      <svg viewBox="0 0 1000 580" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="background:#070B10;">
+        <defs>
+          <!-- Grid Pattern -->
+          <pattern id="tacGridPattern" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#131B26" stroke-width="0.75"/>
+            <circle cx="0" cy="0" r="1" fill="#1F2C3D"/>
+          </pattern>
+
+          <!-- Radial Glow for Novosibirsk Active Target -->
+          <radialGradient id="novoTargetGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#D29922" stop-opacity="0.8"/>
+            <stop offset="60%" stop-color="#D29922" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#D29922" stop-opacity="0"/>
+          </radialGradient>
+
+          <!-- Radial Glow for Moscow Archive -->
+          <radialGradient id="moscowNodeGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#58A6FF" stop-opacity="0.8"/>
+            <stop offset="70%" stop-color="#58A6FF" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#58A6FF" stop-opacity="0"/>
+          </radialGradient>
+
+          <!-- Radar Sweep Cone Gradient -->
+          <radialGradient id="radarSweepGradient" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#58A6FF" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#58A6FF" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <!-- Base Grid -->
+        <rect width="1000" height="580" fill="url(#tacGridPattern)"/>
+
+        <!-- Latitude Lines -->
+        <g stroke="#182230" stroke-width="1" stroke-dasharray="3 4">
+          <line x1="40" y1="90" x2="960" y2="90"/>
+          <line x1="40" y1="180" x2="960" y2="180"/>
+          <line x1="40" y1="280" x2="960" y2="280"/>
+          <line x1="40" y1="390" x2="960" y2="390"/>
+          <line x1="40" y1="490" x2="960" y2="490"/>
+        </g>
+        <g font-family="JetBrains Mono" font-size="9" fill="#3D4B5C">
+          <text x="50" y="85">75°00' N // ARCTIC CIRCLE</text>
+          <text x="50" y="175">65°00' N // SIBERIAN SUBARCTIC</text>
+          <text x="50" y="275">55°00' N // CENTRAL TAIGA ZONE</text>
+          <text x="50" y="385">45°00' N // STEPPE FRONTIER</text>
+        </g>
+
+        <!-- Longitude Lines -->
+        <g stroke="#182230" stroke-width="1" stroke-dasharray="3 4">
+          <line x1="140" y1="40" x2="140" y2="540"/>
+          <line x1="280" y1="40" x2="280" y2="540"/>
+          <line x1="420" y1="40" x2="420" y2="540"/>
+          <line x1="560" y1="40" x2="560" y2="540"/>
+          <line x1="700" y1="40" x2="700" y2="540"/>
+          <line x1="840" y1="40" x2="840" y2="540"/>
+        </g>
+        <g font-family="JetBrains Mono" font-size="9" fill="#3D4B5C">
+          <text x="145" y="530">30°00' E</text>
+          <text x="285" y="530">50°00' E</text>
+          <text x="425" y="530">70°00' E // URAL DIVIDE</text>
+          <text x="565" y="530">90°00' E</text>
+          <text x="705" y="530">110°00' E</text>
+          <text x="845" y="530">130°00' E</text>
+        </g>
+
+        <!-- Stylized Eurasian Landmass Contour -->
+        <path d="M 60 220 
+                 Q 100 160 150 140 
+                 Q 200 120 220 80 
+                 Q 260 60 310 90 
+                 Q 360 80 410 70 
+                 Q 470 60 520 80 
+                 Q 580 60 640 70 
+                 Q 710 60 770 90 
+                 Q 830 80 880 130 
+                 Q 920 180 940 250 
+                 Q 910 320 870 360 
+                 Q 820 400 760 420 
+                 Q 700 430 630 440 
+                 Q 550 450 470 460 
+                 Q 380 470 300 480 
+                 Q 220 490 160 460 
+                 Q 110 420 80 340 Z"
+              fill="#0D1520" fill-opacity="0.5" stroke="#1D2A3B" stroke-width="1.8"/>
+
+        <!-- Inset Seas & Geographic Features -->
+        <path d="M 120 260 Q 140 280 160 270 Q 150 310 130 330 Z" fill="#070B10" stroke="#1D2A3B" stroke-width="1.2"/>
+        <path d="M 120 410 Q 150 390 180 420 Q 160 460 130 450 Z" fill="#070B10" stroke="#1D2A3B" stroke-width="1.2"/>
+        <path d="M 230 400 Q 250 380 270 420 Q 260 460 235 450 Z" fill="#070B10" stroke="#1D2A3B" stroke-width="1.2"/>
+        <path d="M 720 330 Q 740 310 750 360 Q 735 380 720 350 Z" fill="#070B10" stroke="#1D2A3B" stroke-width="1.2"/>
+
+        <!-- Concentric Range Rings Around Novosibirsk Target -->
+        <g stroke="#1F2F44" stroke-width="1" stroke-dasharray="4 6" fill="none">
+          <circle cx="550" cy="280" r="70"/>
+          <circle cx="550" cy="280" r="140"/>
+          <circle cx="550" cy="280" r="220"/>
+          <circle cx="550" cy="280" r="310"/>
+        </g>
+        <g font-family="JetBrains Mono" font-size="8.5" fill="#3E5470">
+          <text x="555" y="205">500 KM</text>
+          <text x="555" y="135">1,000 KM</text>
+          <text x="555" y="55">1,500 KM</text>
+          <text x="555" y="355">500 KM</text>
+          <text x="555" y="425">1,000 KM</text>
+        </g>
+
+        <!-- Animated Rotating Radar Line centered at Novosibirsk -->
+        <g class="tactical-radar-line">
+          <line x1="550" y1="280" x2="860" y2="280" stroke="#58A6FF" stroke-width="1.5" stroke-opacity="0.4"/>
+          <polygon points="550,280 860,240 860,280" fill="url(#radarSweepGradient)"/>
+        </g>
+
+        <!-- Tactical Data Conduits -->
+        <!-- Locked Conduit: Novosibirsk to Norilsk (CH 02) -->
+        <path d="M 550 280 Q 590 200 610 140" fill="none" stroke="#F85149" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.45"/>
+
+        <!-- Locked Conduit: Moscow to Black Sea (CH 03) -->
+        <path d="M 210 320 Q 180 380 160 430" fill="none" stroke="#F85149" stroke-width="1.5" stroke-dasharray="4 6" stroke-opacity="0.45"/>
+
+        <!-- Active Data Corridor: Moscow Central Archive -> Novosibirsk Vityaz Lab -->
+        <path id="primaryDataCorridor" d="M 210 320 Q 380 230 550 280" fill="none" stroke="#58A6FF" stroke-width="2.5" stroke-dasharray="8 6" class="tactical-corridor-flow"/>
+        <path d="M 210 320 Q 380 230 550 280" fill="none" stroke="#58A6FF" stroke-width="1" stroke-opacity="0.4"/>
+
+        <!-- Traveling Data Pulse along Active Corridor -->
+        <circle r="4" fill="#FFFFFF">
+          <animateMotion dur="2.4s" repeatCount="indefinite" path="M 210 320 Q 380 230 550 280"/>
+        </circle>
+        <circle r="8" fill="#58A6FF" opacity="0.6">
+          <animateMotion dur="2.4s" repeatCount="indefinite" path="M 210 320 Q 380 230 550 280"/>
+        </circle>
+
+        <!-- NODE 1: MOSCOW CENTRAL ARCHIVE -->
+        <g transform="translate(210, 320)">
+          <circle cx="0" cy="0" r="22" fill="url(#moscowNodeGlow)"/>
+          <circle cx="0" cy="0" r="14" fill="none" stroke="#58A6FF" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <circle cx="0" cy="0" r="5" fill="#58A6FF"/>
+          <circle cx="0" cy="0" r="18" fill="none" stroke="#58A6FF" stroke-width="1.5" class="tactical-node-pulse"/>
+          <text x="-85" y="-24" fill="#58A6FF" font-family="JetBrains Mono" font-size="11" font-weight="700">MOSCOW ARCHIVE // NODE_04</text>
+          <text x="-85" y="-12" fill="#8B949E" font-family="JetBrains Mono" font-size="9">55.7558° N, 37.6173° E</text>
+          <rect x="-85" y="12" width="115" height="18" rx="3" fill="#0D1117" stroke="#388BFD" stroke-width="1"/>
+          <text x="-80" y="24" fill="#3FB950" font-family="JetBrains Mono" font-size="9" font-weight="700">● SECURE LINK [OK]</text>
+        </g>
+
+        <!-- NODE 3: NORILSK SUBZERO STORAGE (CHAPTER 02 - SEALED) -->
+        <g transform="translate(610, 140)">
+          <circle cx="0" cy="0" r="8" fill="#1C2128" stroke="#F85149" stroke-width="1.5"/>
+          <circle cx="0" cy="0" r="3" fill="#F85149"/>
+          <text x="14" y="-4" fill="#F85149" font-family="JetBrains Mono" font-size="10" font-weight="700">NORILSK STORAGE [CH 02]</text>
+          <text x="14" y="8" fill="#8B949E" font-family="JetBrains Mono" font-size="8.5">69.3558° N, 88.1893° E // ORDER 44-B [SEALED]</text>
+        </g>
+
+        <!-- NODE 4: BLACK SEA SUBMERSIBLE TERMINAL (CHAPTER 03 - SEALED) -->
+        <g transform="translate(160, 430)">
+          <circle cx="0" cy="0" r="8" fill="#1C2128" stroke="#F85149" stroke-width="1.5"/>
+          <circle cx="0" cy="0" r="3" fill="#F85149"/>
+          <text x="14" y="-4" fill="#F85149" font-family="JetBrains Mono" font-size="10" font-weight="700">BLACK SEA TERMINAL [CH 03]</text>
+          <text x="14" y="8" fill="#8B949E" font-family="JetBrains Mono" font-size="8.5">43.6028° N, 39.7342° E // ORDER 44-B [SEALED]</text>
+        </g>
+
+        <!-- NODE 2: NOVOSIBIRSK VITYAZ LAB (CHAPTER 01 - ACTIVE TARGET) -->
+        <g id="target-novosibirsk-group" class="target-crosshair-group" transform="translate(550, 280)">
+          <circle cx="0" cy="0" r="36" fill="url(#novoTargetGlow)"/>
+          <circle cx="0" cy="0" r="26" fill="none" stroke="#D29922" stroke-width="1.5" class="tactical-node-pulse"/>
+          <circle cx="0" cy="0" r="16" fill="rgba(210, 153, 34, 0.15)" stroke="#D29922" stroke-width="1.5"/>
+          <circle cx="0" cy="0" r="4" fill="#D29922"/>
+
+          <!-- Crosshair Reticle -->
+          <line x1="-30" y1="0" x2="-10" y2="0" stroke="#D29922" stroke-width="2"/>
+          <line x1="10" y1="0" x2="30" y2="0" stroke="#D29922" stroke-width="2"/>
+          <line x1="0" y1="-30" x2="0" y2="-10" stroke="#D29922" stroke-width="2"/>
+          <line x1="0" y1="10" x2="0" y2="30" stroke="#D29922" stroke-width="2"/>
+
+          <!-- Target Corner Brackets -->
+          <path d="M -22 -14 L -22 -22 L -14 -22" fill="none" stroke="#D29922" stroke-width="2"/>
+          <path d="M 22 -14 L 22 -22 L 14 -22" fill="none" stroke="#D29922" stroke-width="2"/>
+          <path d="M -22 14 L -22 22 L -14 22" fill="none" stroke="#D29922" stroke-width="2"/>
+          <path d="M 22 14 L 22 22 L 14 22" fill="none" stroke="#D29922" stroke-width="2"/>
+
+          <!-- Tactical Callout Label -->
+          <text x="36" y="-14" fill="#D29922" font-family="JetBrains Mono" font-size="11.5" font-weight="700">VITYAZ LAB // CHAPTER 01</text>
+          <text x="36" y="0" fill="#E3B341" font-family="JetBrains Mono" font-size="9.5">CASE #8809: DR. VIKTOR VOLKOV</text>
+          <text x="36" y="14" fill="#8B949E" font-family="JetBrains Mono" font-size="8.5">55.0084° N, 82.9357° E // BIO-SECTOR L4</text>
+          <rect x="36" y="20" width="135" height="18" rx="3" fill="#0D1117" stroke="#D29922" stroke-width="1"/>
+          <text x="42" y="32" fill="#D29922" font-family="JetBrains Mono" font-size="8.5" font-weight="700">▲ TARGET READY // UNLOCKED</text>
+        </g>
+      </svg>
     `;
-  }
 
-  // Smooth camera pan to Novosibirsk when clicking Chapter 1
-  function zoomToNovosibirsk() {
-    if (leafletMap) {
-      leafletMap.invalidateSize();
-      leafletMap.flyTo([55.0084, 82.9357], 6, { duration: 1.5 });
+    // Connect hover highlighting on Chapter 1 card
+    const ch1Card = document.getElementById('card-chapter-1');
+    const targetGroup = document.getElementById('target-novosibirsk-group');
+    if (ch1Card && targetGroup) {
+      ch1Card.addEventListener('mouseenter', () => {
+        targetGroup.classList.add('focused');
+      });
+      ch1Card.addEventListener('mouseleave', () => {
+        targetGroup.classList.remove('focused');
+      });
     }
   }
 
-  // Ensures map recalculates properly whenever Chapters screen becomes visible
-  function refreshLeafletMap() {
-    if (!leafletMap) {
-      initLeafletMap('leaflet-map');
+  // Smooth target reticle locking animation when user clicks [ ENTER ARCHIVE ]
+  function focusNovosibirsk() {
+    const targetGroup = document.getElementById('target-novosibirsk-group');
+    if (targetGroup) {
+      targetGroup.classList.add('focused');
     }
-    setTimeout(() => {
-      if (leafletMap) {
-        leafletMap.invalidateSize();
-        leafletMap.setView([55.0, 60.0], 4);
-      }
-    }, 80);
-    setTimeout(() => {
-      if (leafletMap) {
-        leafletMap.invalidateSize();
-      }
-    }, 450);
   }
 
   return {
@@ -792,8 +876,9 @@ const MediaEngine = (() => {
     },
     initToxicologyChart,
     initWiretapPlayer,
-    initLeafletMap,
-    refreshLeafletMap,
-    zoomToNovosibirsk,
+    initJurisdictionMap: renderJurisdictionMap,
+    refreshJurisdictionMap: () => renderJurisdictionMap('jurisdiction-map'),
+    focusNovosibirsk,
+    zoomToNovosibirsk: focusNovosibirsk,
   };
 })();
